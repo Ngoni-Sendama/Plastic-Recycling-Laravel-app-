@@ -7,40 +7,56 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
 
 class MaterialIntakesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(10)
+            ->paginated([10, 25, 50])
             ->columns([
                 TextColumn::make('date')
                     ->date()
                     ->sortable(),
                 TextColumn::make('grn_number')
-                    ->searchable(),
-                TextColumn::make('buyer_name')
+                    ->label('GRN')
                     ->searchable(),
                 TextColumn::make('material.name')
+                    ->label('Material')
                     ->searchable(),
-                TextColumn::make('gross_weight_kg')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('tare_weight_kg')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('net_weight_kg')
+                    ->label('Net kg')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('unit_price')
-                    ->money()
                     ->sortable(),
                 TextColumn::make('total_value')
+                    ->label('Value')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('buyer_name')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('gross_weight_kg')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('tare_weight_kg')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('unit_price')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('recordedByUser.name')
-                    ->searchable(),
+                    ->label('Recorded by')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -51,7 +67,19 @@ class MaterialIntakesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('material')
+                    ->relationship('material', 'name'),
+                SelectFilter::make('recordedByUser')
+                    ->label('Recorded by')
+                    ->relationship('recordedByUser', 'name'),
+                Filter::make('date')
+                    ->schema([
+                        DatePicker::make('from'),
+                        DatePicker::make('until'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['from'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('date', '>=', $date))
+                        ->when($data['until'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('date', '<=', $date))),
             ])
             ->recordActions([
                 ViewAction::make(),

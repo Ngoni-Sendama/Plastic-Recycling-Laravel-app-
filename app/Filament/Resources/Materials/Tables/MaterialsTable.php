@@ -14,6 +14,8 @@ class MaterialsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(10)
+            ->paginated([10, 25, 50])
             ->columns([
                 TextColumn::make('code')
                     ->searchable(),

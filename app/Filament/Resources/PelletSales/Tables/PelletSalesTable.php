@@ -6,33 +6,46 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PelletSalesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(10)
+            ->paginated([10, 25, 50])
             ->columns([
                 TextColumn::make('date')
                     ->date()
                     ->sortable(),
                 TextColumn::make('receipt_number')
+                    ->label('Receipt no.')
                     ->searchable(),
                 TextColumn::make('customer_name')
+                    ->label('Customer')
                     ->searchable(),
                 TextColumn::make('kg_sold')
+                    ->label('Kg sold')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('amount_received')
+                    ->label('Amount')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('unit_price')
-                    ->money()
-                    ->sortable(),
-                TextColumn::make('amount_received')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('recordedByUser.name')
-                    ->searchable(),
+                    ->label('Recorded by')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -43,7 +56,17 @@ class PelletSalesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('recordedByUser')
+                    ->label('Recorded by')
+                    ->relationship('recordedByUser', 'name'),
+                Filter::make('date')
+                    ->schema([
+                        DatePicker::make('from'),
+                        DatePicker::make('until'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['from'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('date', '>=', $date))
+                        ->when($data['until'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('date', '<=', $date))),
             ])
             ->recordActions([
                 ViewAction::make(),

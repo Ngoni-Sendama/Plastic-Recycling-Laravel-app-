@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -14,15 +15,22 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(10)
+            ->paginated([10, 25, 50])
             ->columns([
                 TextColumn::make('name')
+                    ->searchable(),
+                TextColumn::make('username')
+                    ->searchable(),
+                TextColumn::make('role')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
                 TextColumn::make('email_verified_at')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -32,18 +40,25 @@ class UsersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('avatar_url')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('locale')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('theme_color')
-                    ->searchable(),
-                TextColumn::make('username')
-                    ->searchable(),
-                TextColumn::make('role')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('role')
+                    ->options([
+                        'Admin' => 'Admin',
+                        'Stock controller' => 'Stock controller',
+                        'Crusher operator' => 'Crusher operator',
+                        'Stock receiver' => 'Stock receiver',
+                        'Palletizing operator' => 'Palletizing operator',
+                        'Supervisor' => 'Supervisor',
+                    ]),
             ])
             ->recordActions([
                 ViewAction::make(),
