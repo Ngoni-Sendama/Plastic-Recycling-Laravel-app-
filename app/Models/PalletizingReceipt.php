@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\PalletizingReceiptFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+#[Fillable([
+    'date',
+    'grn_number',
+    'dispatch_id',
+    'dispatch_reference',
+    'material_id',
+    'weight_received_kg',
+    'rate_per_kg',
+    'amount_payable',
+    'recorded_by_user_id',
+])]
+class PalletizingReceipt extends Model
+{
+    /** @use HasFactory<PalletizingReceiptFactory> */
+    use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'date' => 'date',
+            'weight_received_kg' => 'decimal:3',
+            'rate_per_kg' => 'decimal:2',
+            'amount_payable' => 'decimal:2',
+        ];
+    }
+
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class);
+    }
+
+    public function dispatch(): BelongsTo
+    {
+        return $this->belongsTo(Dispatch::class);
+    }
+
+    public function recordedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'recorded_by_user_id');
+    }
+
+    public function palletizingProductions(): HasMany
+    {
+        return $this->hasMany(PalletizingProduction::class);
+    }
+}

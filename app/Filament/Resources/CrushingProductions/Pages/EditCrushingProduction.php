@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Filament\Resources\CrushingProductions\Pages;
+
+use App\Filament\Resources\CrushingProductions\CrushingProductionResource;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Resources\Pages\EditRecord;
+
+class EditCrushingProduction extends EditRecord
+{
+    protected static string $resource = CrushingProductionResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewAction::make(),
+            DeleteAction::make(),
+        ];
+    }
+}

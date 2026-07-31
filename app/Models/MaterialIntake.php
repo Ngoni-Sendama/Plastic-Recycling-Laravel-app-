@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\MaterialIntakeFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+#[Fillable([
+    'date',
+    'grn_number',
+    'buyer_name',
+    'material_id',
+    'gross_weight_kg',
+    'tare_weight_kg',
+    'net_weight_kg',
+    'unit_price',
+    'total_value',
+    'recorded_by_user_id',
+])]
+class MaterialIntake extends Model
+{
+    /** @use HasFactory<MaterialIntakeFactory> */
+    use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'date' => 'date',
+            'gross_weight_kg' => 'decimal:3',
+            'tare_weight_kg' => 'decimal:3',
+            'net_weight_kg' => 'decimal:3',
+            'unit_price' => 'decimal:2',
+            'total_value' => 'decimal:2',
+        ];
+    }
+
+    public function material(): BelongsTo
+    {
+        return $this->belongsTo(Material::class);
+    }
+
+    public function recordedByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'recorded_by_user_id');
+    }
+
+    public function crushingProductions(): HasMany
+    {
+        return $this->hasMany(CrushingProduction::class);
+    }
+}
