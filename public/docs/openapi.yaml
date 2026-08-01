@@ -110,6 +110,14 @@ paths:
     get:
       tags: [Users]
       summary: List users
+      description: Returns all users (alphabetical by name). Use the optional `search` query parameter to filter by username (partial, case-insensitive match).
+      parameters:
+        - name: search
+          in: query
+          required: false
+          description: Partial username to filter by (e.g. `crusher` matches `crusher01`).
+          schema:
+            type: string
       responses:
         '200':
           description: Users (alphabetical by name)

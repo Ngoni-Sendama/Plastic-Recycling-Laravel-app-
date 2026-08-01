@@ -3,10 +3,12 @@
 namespace App\Filament\Pages\Reports;
 
 use App\Services\ReportSummaryService;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Support\Icons\Heroicon;
 
 class SalesSummary extends BaseReportPage
 {
+    use HasPageShield;
     protected string $view = 'filament.pages.reports.sales-summary';
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;

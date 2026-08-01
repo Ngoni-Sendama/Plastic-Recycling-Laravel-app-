@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -49,6 +50,30 @@ class AdminPanelProvider extends PanelProvider
                     ->shouldShowSanctumTokens()
                     ->shouldShowBrowserSessionsForm()
                     ->shouldShowAvatarForm(),
+                FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3,
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ])
+                    ->navigationLabel('Label')                  // string|Closure|null
+                    ->navigationIcon('heroicon-o-home')         // string|Closure|null
+                    ->activeNavigationIcon('heroicon-s-home')   // string|Closure|null
+                    ->navigationGroup('Group')                  // string|Closure|null
+                    ->navigationSort(10)                        // int|Closure|null
+                    ->navigationBadge('5')                      // string|Closure|null
+                    ->navigationBadgeColor('success')           // string|array|Closure|null
+                    ->navigationParentItem('parent.item'),       // string|Closure|null
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

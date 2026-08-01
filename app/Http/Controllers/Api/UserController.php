@@ -7,14 +7,21 @@ use App\Http\Requests\Api\StoreUserRequest;
 use App\Http\Requests\Api\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserController extends Controller
 {
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return UserResource::collection(User::orderBy('name')->get());
+        return UserResource::collection(User::query()
+            ->when($request->filled('search'), function (Builder $query) use ($request): void {
+                $query->where('username', 'like', '%'.$request->string('search').'%');
+            })
+            ->orderBy('name')
+            ->get());
     }
 
     public function store(StoreUserRequest $request): UserResource

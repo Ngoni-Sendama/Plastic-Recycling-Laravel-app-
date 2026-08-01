@@ -18,6 +18,25 @@ test('the users index endpoint lists users', function () {
         ->assertJsonPath('data.1.username', 'crusher01');
 });
 
+test('the users index endpoint filters by username search', function () {
+    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    User::factory()->create(['name' => 'Crusher One', 'username' => 'crusher01', 'role' => 'Crusher operator']);
+    User::factory()->create(['name' => 'Crusher Two', 'username' => 'crusher02', 'role' => 'Crusher operator']);
+    User::factory()->create(['name' => 'Receiver One', 'username' => 'receiver01', 'role' => 'Stock receiver']);
+
+    $this->actingAs($auth, 'sanctum')
+        ->getJson('/api/users?search=crusher')
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.username', 'crusher01')
+        ->assertJsonPath('data.1.username', 'crusher02');
+
+    $this->actingAs($auth, 'sanctum')
+        ->getJson('/api/users?search=nobody')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
 test('users can be created via the API', function () {
     $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
 

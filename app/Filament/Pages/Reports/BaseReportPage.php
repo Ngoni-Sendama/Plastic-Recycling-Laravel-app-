@@ -2,11 +2,13 @@
 
 namespace App\Filament\Pages\Reports;
 
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
 
 abstract class BaseReportPage extends Page
 {
+    use HasPageShield;
     protected static string|\UnitEnum|null $navigationGroup = 'Reports';
 
     public ?string $from = null;

@@ -3,12 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Services\DashboardSummaryService;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Number;
 
 class StatsOverview extends StatsOverviewWidget
 {
+    use HasWidgetShield;
+    
     protected ?string $pollingInterval = '30s';
 
     protected static bool $isLazy = false;

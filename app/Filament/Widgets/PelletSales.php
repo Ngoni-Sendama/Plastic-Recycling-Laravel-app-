@@ -3,12 +3,15 @@
 namespace App\Filament\Widgets;
 
 use App\Models\PelletSale;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class PelletSales extends ChartWidget
 {
+    use HasWidgetShield;
+
     protected ?string $heading = 'Pellet Sales';
 
     protected string $color = 'info';

@@ -70,7 +70,7 @@ Revokes the current token. Returns `{ "message": "Logged out successfully." }`. 
 
 | Method | Path | Description |
 | --- | --- | --- |
-| GET | `/users` | List (ordered by name) |
+| GET | `/users` | List (ordered by name; optional `?search=` filters by partial username) |
 | POST | `/users` | Create |
 | GET | `/users/{user}` | Show one |
 | PATCH | `/users/{user}` | Update (password optional on update) |
