@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Spatie\Permission\Models\Role;
 
 class UsersTable
 {
@@ -25,7 +26,9 @@ class UsersTable
                     ->searchable(),
                 TextColumn::make('username')
                     ->searchable(),
-                TextColumn::make('role')
+                TextColumn::make('roles.name')
+                    ->label('Roles')
+                    ->badge()
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
