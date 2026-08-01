@@ -12,6 +12,11 @@ class DashboardController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $request->validate([
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date'],
+        ]);
+
         $from = $request->filled('from') ? Carbon::parse($request->string('from')->toString()) : null;
         $to = $request->filled('to') ? Carbon::parse($request->string('to')->toString()) : null;
 

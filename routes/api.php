@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\MaterialIntakeController;
 use App\Http\Controllers\Api\PalletizingProductionController;
 use App\Http\Controllers\Api\PalletizingReceiptController;
 use App\Http\Controllers\Api\PelletSaleController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/materials/{material}', [MaterialController::class, 'update']);
 
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    Route::get('/reports/stock', [ReportController::class, 'stock']);
+    Route::get('/reports/production', [ReportController::class, 'production']);
+    Route::get('/reports/sales', [ReportController::class, 'sales']);
+    Route::get('/reports/cash-reconciliation', [ReportController::class, 'cashReconciliation']);
 
     Route::get('/sync/pull', [SyncController::class, 'pull']);
     Route::post('/sync/push', [SyncController::class, 'push']);

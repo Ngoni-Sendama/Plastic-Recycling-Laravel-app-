@@ -1,0 +1,1782 @@
+openapi: 3.0.3
+info:
+  title: Plastic Recycling API
+  description: >
+    Backend API for the plastic recycling operations mobile app.
+
+    All endpoints except `POST /api/login` require a Sanctum bearer token
+    issued by the login endpoint. Send it as:
+
+        Authorization: Bearer <token>
+
+    Derived values (net weight, totals, amounts, loss percentages, dashboard
+    metrics) are always computed server-side — never trust or send them from
+    the client.
+
+    The `sync/pull` and `sync/push` endpoints implement offline-online sync
+    with optimistic locking (`lock_version`). See the companion
+    `api-reference.md` for the full mobile integration guide.
+  version: 1.0.0
+servers:
+  - url: https://plastic-recycling.test/api
+    description: Local Herd development server (update for production)
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+    description: Login, logout, current user
+  - name: Users
+  - name: Materials
+  - name: Workflow
+    description: The seven operational modules
+  - name: Dashboard
+  - name: Reports
+    description: Stock, production, sales and cash reconciliation summaries
+  - name: Sync
+    description: Offline-online synchronisation
+paths:
+  /login:
+    post:
+      tags: [Auth]
+      summary: Log in with username and password
+      description: >
+        Returns a Sanctum bearer token plus the user. Invalid credentials
+        return a 422 with `errors.username`. Rate limited to 5 attempts per
+        minute per username+IP combination.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: crusher01
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, user]
+                properties:
+                  token:
+                    type: string
+                    example: 1|a1b2c3...
+                  user:
+                    $ref: '#/components/schemas/User'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /user:
+    get:
+      tags: [Auth]
+      summary: Get the authenticated user
+      responses:
+        '200':
+          description: Authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Revoke the current token
+      responses:
+        '200':
+          description: Token revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out successfully.
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /users:
+    get:
+      tags: [Users]
+      summary: List users
+      responses:
+        '200':
+          description: Users (alphabetical by name)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+    post:
+      tags: [Users]
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserStore'
+      responses:
+        '200':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /users/{user}:
+    parameters:
+      - $ref: '#/components/parameters/UserPath'
+    get:
+      tags: [Users]
+      summary: Show a user
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Users]
+      summary: Update a user
+      description: Password is optional on update; omit it to keep the current password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags: [Users]
+      summary: Delete a user
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully.
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /materials:
+    get:
+      tags: [Materials]
+      summary: List materials
+      responses:
+        '200':
+          description: Materials (ordered by code)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Material'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+    post:
+      tags: [Materials]
+      summary: Create a material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterialStore'
+      responses:
+        '200':
+          description: Material created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Material'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /materials/{material}:
+    parameters:
+      - $ref: '#/components/parameters/MaterialPath'
+    patch:
+      tags: [Materials]
+      summary: Update a material
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterialStore'
+      responses:
+        '200':
+          description: Material updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Material'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Operations summary
+      description: Aggregate metrics for the whole period or a date range (`from`/`to`, YYYY-MM-DD).
+      parameters:
+        - name: from
+          in: query
+          description: Inclusive start date
+          schema:
+            type: string
+            format: date
+            example: '2026-01-01'
+        - name: to
+          in: query
+          description: Inclusive end date
+          schema:
+            type: string
+            format: date
+            example: '2026-12-31'
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardSummary'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /reports/stock:
+    get:
+      tags: [Reports]
+      summary: Stock summary report
+      description: Material flow through the pipeline with a per-material breakdown, optionally filtered by `from`/`to` (YYYY-MM-DD).
+      parameters:
+        - name: from
+          in: query
+          description: Inclusive start date
+          schema:
+            type: string
+            format: date
+            example: '2026-01-01'
+        - name: to
+          in: query
+          description: Inclusive end date
+          schema:
+            type: string
+            format: date
+            example: '2026-12-31'
+      responses:
+        '200':
+          description: Stock summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StockReport'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /reports/production:
+    get:
+      tags: [Reports]
+      summary: Production summary report
+      description: Crushing and palletizing performance with a per-material and monthly view, optionally filtered by `from`/`to`.
+      parameters:
+        - name: from
+          in: query
+          description: Inclusive start date
+          schema:
+            type: string
+            format: date
+            example: '2026-01-01'
+        - name: to
+          in: query
+          description: Inclusive end date
+          schema:
+            type: string
+            format: date
+            example: '2026-12-31'
+      responses:
+        '200':
+          description: Production summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProductionReport'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /reports/sales:
+    get:
+      tags: [Reports]
+      summary: Sales summary report
+      description: Pellet sales totals with a per-customer and monthly view, optionally filtered by `from`/`to`.
+      parameters:
+        - name: from
+          in: query
+          description: Inclusive start date
+          schema:
+            type: string
+            format: date
+            example: '2026-01-01'
+        - name: to
+          in: query
+          description: Inclusive end date
+          schema:
+            type: string
+            format: date
+            example: '2026-12-31'
+      responses:
+        '200':
+          description: Sales summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SalesReport'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /reports/cash-reconciliation:
+    get:
+      tags: [Reports]
+      summary: Cash reconciliation report
+      description: Cash remittances versus sales revenue with a per-voucher view, optionally filtered by `from`/`to`.
+      parameters:
+        - name: from
+          in: query
+          description: Inclusive start date
+          schema:
+            type: string
+            format: date
+            example: '2026-01-01'
+        - name: to
+          in: query
+          description: Inclusive end date
+          schema:
+            type: string
+            format: date
+            example: '2026-12-31'
+      responses:
+        '200':
+          description: Cash reconciliation summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CashReconciliationReport'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /material-intakes:
+    get:
+      tags: [Workflow]
+      summary: List material intakes (newest first)
+      responses:
+        '200':
+          description: Material intakes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MaterialIntake'
+    post:
+      tags: [Workflow]
+      summary: Record a material intake
+      description: >
+        Provide either `material_id` or `material_code` (code wins if both are
+        sent). `net_weight_kg` and `total_value` are calculated server-side.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterialIntakeStore'
+      responses:
+        '200':
+          description: Intake created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaterialIntake'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /crushing-productions:
+    get:
+      tags: [Workflow]
+      summary: List crushing productions (newest first)
+      responses:
+        '200':
+          description: Crushing productions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CrushingProduction'
+    post:
+      tags: [Workflow]
+      summary: Record a crushing production run
+      description: >
+        Provide either `material_id` or `material_code`. `loss_kg` and
+        `loss_percentage` are calculated server-side.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrushingProductionStore'
+      responses:
+        '200':
+          description: Crushing production created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrushingProduction'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /dispatches:
+    get:
+      tags: [Workflow]
+      summary: List dispatches (newest first)
+      responses:
+        '200':
+          description: Dispatches
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Dispatch'
+    post:
+      tags: [Workflow]
+      summary: Record a chips dispatch
+      description: Provide either `material_id` or `material_code`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispatchStore'
+      responses:
+        '200':
+          description: Dispatch created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dispatch'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /palletizing-receipts:
+    get:
+      tags: [Workflow]
+      summary: List palletizing receipts (newest first)
+      responses:
+        '200':
+          description: Palletizing receipts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PalletizingReceipt'
+    post:
+      tags: [Workflow]
+      summary: Record a palletizing receipt
+      description: >
+        Provide either `material_id` or `material_code`. `amount_payable` is
+        calculated server-side.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PalletizingReceiptStore'
+      responses:
+        '200':
+          description: Receipt created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PalletizingReceipt'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /palletizing-productions:
+    get:
+      tags: [Workflow]
+      summary: List palletizing productions (newest first)
+      responses:
+        '200':
+          description: Palletizing productions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PalletizingProduction'
+    post:
+      tags: [Workflow]
+      summary: Record a palletizing production run
+      description: >
+        `loss_kg` and `loss_percentage` are calculated server-side from
+        `chips_input_kg` and `pellets_output_kg`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PalletizingProductionStore'
+      responses:
+        '200':
+          description: Palletizing production created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PalletizingProduction'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /pellet-sales:
+    get:
+      tags: [Workflow]
+      summary: List pellet sales (newest first)
+      responses:
+        '200':
+          description: Pellet sales
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PelletSale'
+    post:
+      tags: [Workflow]
+      summary: Record a pellet sale
+      description: >
+        `amount_received` is calculated server-side as `kg_sold * unit_price`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PelletSaleStore'
+      responses:
+        '200':
+          description: Sale created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PelletSale'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /cash-remittances:
+    get:
+      tags: [Workflow]
+      summary: List cash remittances (newest first)
+      responses:
+        '200':
+          description: Cash remittances
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CashRemittance'
+    post:
+      tags: [Workflow]
+      summary: Record a cash remittance
+      description: >
+        `max_remittance_due` and `balance_retained` are calculated server-side
+        from delivered chips, recovery price, sales revenue and cash remitted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashRemittanceStore'
+      responses:
+        '200':
+          description: Remittance created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashRemittance'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /sync/pull:
+    get:
+      tags: [Sync]
+      summary: Pull all changes since a timestamp
+      description: >
+        Returns every record from every syncable table changed after `since`
+        (inclusive of soft-deleted rows, which appear under `deleted`).
+        `since` is an ISO-8601 timestamp; omit it to do a full sync. Store
+        `server_time` and use it as `since` on the next pull.
+      parameters:
+        - name: since
+          in: query
+          description: ISO-8601 timestamp, e.g. 2026-08-01T10:00:00Z
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Changes grouped by table
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncPullResponse'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /sync/push:
+    post:
+      tags: [Sync]
+      summary: Push offline changes (create/update/delete)
+      description: >
+        Send all pending offline changes grouped by table. Each change carries
+        a client-generated `local_id`, an optional `server_id` (null for new
+        records) and the `server_lock_version` the client last saw.
+
+        - A matching `server_lock_version` → record created/updated/soft-deleted
+          (`accepted`).
+        - A stale version → no data is written; a conflict is stored server-side
+          for admin review and returned under `conflicts`.
+        - Validation failures → returned under `rejected` with field errors.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncPushRequest'
+      responses:
+        '200':
+          description: Per-change outcomes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncPushResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum token
+  parameters:
+    UserPath:
+      name: user
+      in: path
+      required: true
+      description: User id
+      schema:
+        type: integer
+    MaterialPath:
+      name: material
+      in: path
+      required: true
+      description: Material id
+      schema:
+        type: integer
+  responses:
+    Unauthenticated:
+      description: Missing or invalid bearer token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Unauthenticated.
+    UnprocessableEntity:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message, errors]
+            properties:
+              message:
+                type: string
+                example: The given data was invalid.
+              errors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  material_code:
+                    - The material code field is required when material id is not present.
+    TooManyRequests:
+      description: Rate limit exceeded (login endpoint)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Too Many Attempts.
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Record not found.
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          example: Stock controller
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    UserStore:
+      type: object
+      required: [name, username, email, password]
+      properties:
+        name:
+          type: string
+          example: Tawanda Moyo
+        username:
+          type: string
+          example: crusher01
+        email:
+          type: string
+          format: email
+          example: crusher01@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: secret123
+        role:
+          type: string
+          enum: [Admin, Stock controller, Crusher operator, Stock receiver, Palletizing operator, Supervisor]
+          default: Stock controller
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: Omit to keep the current password
+        role:
+          type: string
+          enum: [Admin, Stock controller, Crusher operator, Stock receiver, Palletizing operator, Supervisor]
+    Material:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        lock_version:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    MaterialStore:
+      type: object
+      required: [code, name]
+      properties:
+        code:
+          type: string
+          maxLength: 255
+          example: HDPE-CLEAR
+        name:
+          type: string
+          maxLength: 255
+          example: Clear HDPE flakes
+    MaterialIntake:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        grn_number:
+          type: string
+        buyer_name:
+          type: string
+        material_id:
+          type: integer
+          nullable: true
+        material:
+          type: string
+          nullable: true
+          description: Material code (only when the relation is loaded)
+        gross_weight_kg:
+          type: number
+        tare_weight_kg:
+          type: number
+        net_weight_kg:
+          type: number
+        unit_price:
+          type: number
+        total_value:
+          type: number
+        recorded_by_user_id:
+          type: integer
+          nullable: true
+        recorded_by:
+          type: string
+          nullable: true
+        lock_version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    MaterialIntakeStore:
+      type: object
+      required: [date, grn_number, buyer_name, gross_weight_kg, tare_weight_kg, unit_price]
+      properties:
+        date:
+          type: string
+          format: date
+          example: '2026-08-01'
+        grn_number:
+          type: string
+          example: GRN-1001
+        buyer_name:
+          type: string
+          example: EcoScrap Supplies
+        material_id:
+          type: integer
+          nullable: true
+          description: Mutually exclusive with material_code
+        material_code:
+          type: string
+          description: Mutually exclusive with material_id (wins if both sent)
+          example: HDPE-CLEAR
+        gross_weight_kg:
+          type: number
+          example: 1050
+        tare_weight_kg:
+          type: number
+          example: 250
+        unit_price:
+          type: number
+          example: 0.85
+    CrushingProduction:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        batch_number:
+          type: string
+        material_intake_id:
+          type: integer
+          nullable: true
+        grn_reference:
+          type: string
+          nullable: true
+        material_id:
+          type: integer
+          nullable: true
+        material:
+          type: string
+          nullable: true
+        input_weight_kg:
+          type: number
+        output_chips_kg:
+          type: number
+        loss_kg:
+          type: number
+        loss_percentage:
+          type: number
+        recorded_by_user_id:
+          type: integer
+          nullable: true
+        recorded_by:
+          type: string
+          nullable: true
+        lock_version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    CrushingProductionStore:
+      type: object
+      required: [date, batch_number, input_weight_kg, output_chips_kg]
+      properties:
+        date:
+          type: string
+          format: date
+        batch_number:
+          type: string
+        material_intake_id:
+          type: integer
+          nullable: true
+        grn_reference:
+          type: string
+          nullable: true
+        material_id:
+          type: integer
+          nullable: true
+        material_code:
+          type: string
+        input_weight_kg:
+          type: number
+        output_chips_kg:
+          type: number
+    Dispatch:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        dispatch_note_number:
+          type: string
+        crushing_production_id:
+          type: integer
+          nullable: true
+        batch_reference:
+          type: string
+          nullable: true
+        material_id:
+          type: integer
+          nullable: true
+        material:
+          type: string
+          nullable: true
+        weight_dispatched_kg:
+          type: number
+        transported_by:
+          type: string
+          nullable: true
+        recorded_by_user_id:
+          type: integer
+          nullable: true
+        recorded_by:
+          type: string
+          nullable: true
+        lock_version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    DispatchStore:
+      type: object
+      required: [date, dispatch_note_number, weight_dispatched_kg]
+      properties:
+        date:
+          type: string
+          format: date
+        dispatch_note_number:
+          type: string
+        crushing_production_id:
+          type: integer
+          nullable: true
+        batch_reference:
+          type: string
+          nullable: true
+        material_id:
+          type: integer
+          nullable: true
+        material_code:
+          type: string
+        weight_dispatched_kg:
+          type: number
+        transported_by:
+          type: string
+          nullable: true
+    PalletizingReceipt:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        grn_number:
+          type: string
+        dispatch_id:
+          type: integer
+          nullable: true
+        dispatch_reference:
+          type: string
+          nullable: true
+        material_id:
+          type: integer
+          nullable: true
+        material:
+          type: string
+          nullable: true
+        weight_received_kg:
+          type: number
+        rate_per_kg:
+          type: number
+        amount_payable:
+          type: number
+        recorded_by_user_id:
+          type: integer
+          nullable: true
+        recorded_by:
+          type: string
+          nullable: true
+        lock_version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    PalletizingReceiptStore:
+      type: object
+      required: [date, grn_number, weight_received_kg, rate_per_kg]
+      properties:
+        date:
+          type: string
+          format: date
+        grn_number:
+          type: string
+        dispatch_id:
+          type: integer
+          nullable: true
+        dispatch_reference:
+          type: string
+          nullable: true
+        material_id:
+          type: integer
+          nullable: true
+        material_code:
+          type: string
+        weight_received_kg:
+          type: number
+        rate_per_kg:
+          type: number
+    PalletizingProduction:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        batch_number:
+          type: string
+        palletizing_receipt_id:
+          type: integer
+          nullable: true
+        grn_reference:
+          type: string
+          nullable: true
+        chips_input_kg:
+          type: number
+        pellets_output_kg:
+          type: number
+        loss_kg:
+          type: number
+        loss_percentage:
+          type: number
+        recorded_by_user_id:
+          type: integer
+          nullable: true
+        recorded_by:
+          type: string
+          nullable: true
+        lock_version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    PalletizingProductionStore:
+      type: object
+      required: [date, batch_number, chips_input_kg, pellets_output_kg]
+      properties:
+        date:
+          type: string
+          format: date
+        batch_number:
+          type: string
+        palletizing_receipt_id:
+          type: integer
+          nullable: true
+        grn_reference:
+          type: string
+          nullable: true
+        chips_input_kg:
+          type: number
+        pellets_output_kg:
+          type: number
+    PelletSale:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        receipt_number:
+          type: string
+        customer_name:
+          type: string
+        kg_sold:
+          type: number
+        unit_price:
+          type: number
+        amount_received:
+          type: number
+        recorded_by_user_id:
+          type: integer
+          nullable: true
+        recorded_by:
+          type: string
+          nullable: true
+        lock_version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    PelletSaleStore:
+      type: object
+      required: [date, receipt_number, customer_name, kg_sold, unit_price]
+      properties:
+        date:
+          type: string
+          format: date
+        receipt_number:
+          type: string
+        customer_name:
+          type: string
+        kg_sold:
+          type: number
+        unit_price:
+          type: number
+    CashRemittance:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date
+        voucher_number:
+          type: string
+        period_covered:
+          type: string
+          nullable: true
+        chips_delivered_kg:
+          type: number
+        recovery_price_per_kg:
+          type: number
+        sales_revenue:
+          type: number
+        cash_remitted:
+          type: number
+        max_remittance_due:
+          type: number
+        balance_retained:
+          type: number
+        recorded_by_user_id:
+          type: integer
+          nullable: true
+        recorded_by:
+          type: string
+          nullable: true
+        lock_version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          nullable: true
+          format: date-time
+    CashRemittanceStore:
+      type: object
+      required: [date, voucher_number, chips_delivered_kg, recovery_price_per_kg, sales_revenue, cash_remitted]
+      properties:
+        date:
+          type: string
+          format: date
+        voucher_number:
+          type: string
+        period_covered:
+          type: string
+          nullable: true
+        chips_delivered_kg:
+          type: number
+        recovery_price_per_kg:
+          type: number
+        sales_revenue:
+          type: number
+        cash_remitted:
+          type: number
+    DashboardSummary:
+      type: object
+      properties:
+        material_purchased_kg:
+          type: number
+        chips_produced_kg:
+          type: number
+        crushing_loss_percentage:
+          type: number
+        chips_dispatched_kg:
+          type: number
+        chips_on_hand_kg:
+          type: number
+        chips_received_kg:
+          type: number
+        receiving_variance_kg:
+          type: number
+        payable_to_crushing:
+          type: number
+        pellets_produced_kg:
+          type: number
+        palletizing_loss_percentage:
+          type: number
+        pellets_sold_kg:
+          type: number
+        finished_stock_kg:
+          type: number
+        sales_revenue:
+          type: number
+        cash_remitted:
+          type: number
+        balance_retained:
+          type: number
+        cash_collection_gap:
+          type: number
+        outstanding_to_crushing:
+          type: number
+        reconciliation_status:
+          type: string
+          enum: [balanced, shortfall]
+    StockReport:
+      type: object
+      required: [period, totals, per_material]
+      properties:
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              nullable: true
+              format: date
+            to:
+              type: string
+              nullable: true
+              format: date
+        totals:
+          type: object
+          properties:
+            material_purchased_kg:
+              type: number
+            chips_produced_kg:
+              type: number
+            chips_dispatched_kg:
+              type: number
+            chips_on_hand_kg:
+              type: number
+            chips_received_kg:
+              type: number
+            receiving_variance_kg:
+              type: number
+            pellets_produced_kg:
+              type: number
+            pellets_sold_kg:
+              type: number
+            finished_stock_kg:
+              type: number
+        per_material:
+          type: array
+          description: Materials with activity in the period
+          items:
+            type: object
+            properties:
+              material_code:
+                type: string
+              material_name:
+                type: string
+              purchased_kg:
+                type: number
+              produced_kg:
+                type: number
+              dispatched_kg:
+                type: number
+              received_kg:
+                type: number
+              on_hand_kg:
+                type: number
+    ProductionReport:
+      type: object
+      required: [period, crushing, palletizing, per_material, monthly]
+      properties:
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              nullable: true
+              format: date
+            to:
+              type: string
+              nullable: true
+              format: date
+        crushing:
+          type: object
+          properties:
+            input_kg:
+              type: number
+            output_kg:
+              type: number
+            loss_kg:
+              type: number
+            loss_percentage:
+              type: number
+        palletizing:
+          type: object
+          properties:
+            input_kg:
+              type: number
+            output_kg:
+              type: number
+            loss_kg:
+              type: number
+            loss_percentage:
+              type: number
+        per_material:
+          type: array
+          items:
+            type: object
+            properties:
+              material_code:
+                type: string
+                nullable: true
+              material_name:
+                type: string
+                nullable: true
+              input_kg:
+                type: number
+              output_kg:
+                type: number
+              loss_kg:
+                type: number
+              loss_percentage:
+                type: number
+        monthly:
+          type: array
+          items:
+            type: object
+            properties:
+              period:
+                type: string
+                example: '2026-08'
+              crushing_output_kg:
+                type: number
+              palletizing_output_kg:
+                type: number
+    SalesReport:
+      type: object
+      required: [period, totals, per_customer, monthly]
+      properties:
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              nullable: true
+              format: date
+            to:
+              type: string
+              nullable: true
+              format: date
+        totals:
+          type: object
+          properties:
+            kg_sold:
+              type: number
+            revenue:
+              type: number
+            average_price_per_kg:
+              type: number
+            transactions:
+              type: integer
+        per_customer:
+          type: array
+          items:
+            type: object
+            properties:
+              customer_name:
+                type: string
+              kg_sold:
+                type: number
+              revenue:
+                type: number
+              transactions:
+                type: integer
+        monthly:
+          type: array
+          items:
+            type: object
+            properties:
+              period:
+                type: string
+                example: '2026-08'
+              kg_sold:
+                type: number
+              revenue:
+                type: number
+    CashReconciliationReport:
+      type: object
+      required: [period, totals, remittances]
+      properties:
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              nullable: true
+              format: date
+            to:
+              type: string
+              nullable: true
+              format: date
+        totals:
+          type: object
+          properties:
+            sales_revenue:
+              type: number
+            cash_remitted:
+              type: number
+            balance_retained:
+              type: number
+            cash_collection_gap:
+              type: number
+            payable_to_crushing:
+              type: number
+            outstanding_to_crushing:
+              type: number
+            reconciliation_status:
+              type: string
+              enum: [balanced, shortfall]
+        remittances:
+          type: array
+          description: Individual cash remittance vouchers in the period
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              voucher_number:
+                type: string
+              period_covered:
+                type: string
+                nullable: true
+              chips_delivered_kg:
+                type: number
+              recovery_price_per_kg:
+                type: number
+              sales_revenue:
+                type: number
+              cash_remitted:
+                type: number
+              max_remittance_due:
+                type: number
+              balance_retained:
+                type: number
+    SyncPullResponse:
+      type: object
+      required: [server_time, changes, deleted]
+      properties:
+        server_time:
+          type: string
+          format: date-time
+          description: Use as `since` on the next pull
+        changes:
+          type: object
+          description: Maps table name to live records changed since `since`
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/SyncRow'
+        deleted:
+          type: object
+          description: Maps table name to soft-deleted records changed since `since`
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/SyncRow'
+    SyncRow:
+      oneOf:
+        - $ref: '#/components/schemas/Material'
+        - $ref: '#/components/schemas/MaterialIntake'
+        - $ref: '#/components/schemas/CrushingProduction'
+        - $ref: '#/components/schemas/Dispatch'
+        - $ref: '#/components/schemas/PalletizingReceipt'
+        - $ref: '#/components/schemas/PalletizingProduction'
+        - $ref: '#/components/schemas/PelletSale'
+        - $ref: '#/components/schemas/CashRemittance'
+    SyncPushRequest:
+      type: object
+      required: [changes]
+      properties:
+        changes:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/SyncChange'
+          example:
+            pellet_sales:
+              - local_id: uuid-1
+                server_id: null
+                server_lock_version: null
+                deleted: false
+                data:
+                  date: '2026-08-01'
+                  receipt_number: R-9001
+                  customer_name: PlastCo
+                  kg_sold: 500
+                  unit_price: 2.4
+    SyncChange:
+      type: object
+      required: [local_id, data]
+      properties:
+        local_id:
+          type: string
+          description: Client-generated id for idempotent bookkeeping
+        server_id:
+          type: integer
+          nullable: true
+          description: Server record id; null when creating a new record
+        server_lock_version:
+          type: integer
+          nullable: true
+          description: lock_version the client last saw; null for new records
+        deleted:
+          type: boolean
+          default: false
+          description: Soft-delete this server record (requires a valid server_id + version)
+        data:
+          type: object
+          description: Fields to create or merge (same rules as the matching store endpoint)
+    SyncPushResponse:
+      type: object
+      required: [accepted, conflicts, rejected]
+      properties:
+        accepted:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncAccepted'
+        conflicts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncConflict'
+        rejected:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncRejected'
+    SyncAccepted:
+      type: object
+      properties:
+        table:
+          type: string
+        local_id:
+          type: string
+        status:
+          type: string
+          example: accepted
+        server_id:
+          type: integer
+          nullable: true
+        lock_version:
+          type: integer
+          nullable: true
+        deleted:
+          type: boolean
+          description: Present only when the change was a delete
+    SyncConflict:
+      type: object
+      properties:
+        table:
+          type: string
+        local_id:
+          type: string
+        status:
+          type: string
+          example: conflict
+        server_id:
+          type: integer
+        conflict_id:
+          type: integer
+          description: Id of the record created in sync_conflicts for admin review
+        server_version:
+          type: integer
+          description: Current server lock_version; the client must re-pull to resolve
+    SyncRejected:
+      type: object
+      properties:
+        table:
+          type: string
+        local_id:
+          type: string
+          nullable: true
+        errors:
+          oneOf:
+            - type: object
+              description: Field validation errors (message + errors map)
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+            - type: array
+              description: Generic server error messages
+              items:
+                type: string

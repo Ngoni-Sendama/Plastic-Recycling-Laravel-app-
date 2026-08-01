@@ -24,10 +24,12 @@
       - /api/sync/push
       - conflict review in Filament
 
-  - Reports pages:
+  - [x] Reports pages (Filament + API):
       - Stock Summary
       - Production Summary
       - Sales Summary
       - Cash Reconciliation
+      - Endpoints: GET /api/reports/stock, /api/reports/production, /api/reports/sales, /api/reports/cash-reconciliation (Bearer auth, optional from/to date filters, `{ "data": ... }` envelope)
+      - Verification: 60 API/service tests passed (383 assertions, incl. 13 report tests), Pint clean.
 
  
