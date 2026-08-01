@@ -66,14 +66,9 @@ class AdminPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ])
-                    ->navigationLabel('Label')                  // string|Closure|null
-                    ->navigationIcon('heroicon-o-home')         // string|Closure|null
-                    ->activeNavigationIcon('heroicon-s-home')   // string|Closure|null
-                    ->navigationGroup('Group')                  // string|Closure|null
+                    ->navigationLabel('Roles and Permissions')                  // string|Closure|null
+                    ->navigationGroup('Setup')                  // string|Closure|null
                     ->navigationSort(10)                        // int|Closure|null
-                    ->navigationBadge('5')                      // string|Closure|null
-                    ->navigationBadgeColor('success')           // string|array|Closure|null
-                    ->navigationParentItem('parent.item'),       // string|Closure|null
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
