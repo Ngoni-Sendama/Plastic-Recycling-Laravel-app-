@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentNumberGenerator;
 use Database\Factories\CrushingProductionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,6 +43,15 @@ class CrushingProduction extends Model
             'loss_percentage' => 'decimal:4',
             'lock_version' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $crushingProduction): void {
+            if ($crushingProduction->filled('batch_number') === false) {
+                $crushingProduction->batch_number = DocumentNumberGenerator::generate($crushingProduction, 'batch_number', 'CR-BATCH', $crushingProduction->date);
+            }
+        });
     }
 
     public function material(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentNumberGenerator;
 use Database\Factories\PalletizingReceiptFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,6 +41,15 @@ class PalletizingReceipt extends Model
             'amount_payable' => 'decimal:2',
             'lock_version' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $palletizingReceipt): void {
+            if ($palletizingReceipt->filled('grn_number') === false) {
+                $palletizingReceipt->grn_number = DocumentNumberGenerator::generate($palletizingReceipt, 'grn_number', 'PGRN', $palletizingReceipt->date);
+            }
+        });
     }
 
     public function material(): BelongsTo

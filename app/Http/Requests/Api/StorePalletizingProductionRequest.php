@@ -18,7 +18,6 @@ class StorePalletizingProductionRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'batch_number' => ['required', 'string', 'max:255'],
             'palletizing_receipt_id' => ['nullable', 'integer', 'exists:palletizing_receipts,id'],
             'grn_reference' => ['nullable', 'string', 'max:255'],
             'chips_input_kg' => ['required', 'numeric', 'min:0'],

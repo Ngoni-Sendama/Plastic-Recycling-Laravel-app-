@@ -18,7 +18,6 @@ class StoreMaterialIntakeRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'grn_number' => ['required', 'string', 'max:255'],
             'buyer_name' => ['required', 'string', 'max:255'],
             'material_id' => ['nullable', 'integer', 'exists:materials,id'],
             'material_code' => ['required_without:material_id', 'string', 'exists:materials,code'],

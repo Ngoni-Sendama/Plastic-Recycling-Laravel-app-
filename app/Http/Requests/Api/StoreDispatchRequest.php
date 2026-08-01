@@ -18,7 +18,6 @@ class StoreDispatchRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'dispatch_note_number' => ['required', 'string', 'max:255'],
             'crushing_production_id' => ['nullable', 'integer', 'exists:crushing_productions,id'],
             'batch_reference' => ['nullable', 'string', 'max:255'],
             'material_id' => ['nullable', 'integer', 'exists:materials,id'],

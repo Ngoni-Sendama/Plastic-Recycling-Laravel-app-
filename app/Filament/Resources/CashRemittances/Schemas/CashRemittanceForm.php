@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\CashRemittances\Schemas;
 
+use App\Models\CashRemittance;
+use App\Services\DocumentNumberGenerator;
 use App\Services\CashRemittanceCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -24,10 +26,14 @@ class CashRemittanceForm
                             ->default(today())
                             ->required(),
                         TextInput::make('voucher_number')
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new CashRemittance(), 'voucher_number', 'REM', today()))
                             ->placeholder('REM-2026-0001')
-                            ->required(),
+                            ->helperText('Automatically generated with prefix REM-YYYY-####.')
+                            ->disabled()
+                            ->dehydrated(),
                         TextInput::make('period_covered')
-                            ->placeholder('2026-07-31 to 2026-08-02'),
+                            ->placeholder('2026-07-31 to 2026-08-02')
+                            ->helperText('Optional reporting period.'),
                         Select::make('recorded_by_user_id')
                             ->relationship('recordedByUser', 'name')
                             ->searchable()

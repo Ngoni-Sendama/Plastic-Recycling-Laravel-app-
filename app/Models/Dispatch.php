@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentNumberGenerator;
 use Database\Factories\DispatchFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,6 +38,15 @@ class Dispatch extends Model
             'weight_dispatched_kg' => 'decimal:3',
             'lock_version' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $dispatch): void {
+            if ($dispatch->filled('dispatch_note_number') === false) {
+                $dispatch->dispatch_note_number = DocumentNumberGenerator::generate($dispatch, 'dispatch_note_number', 'DN', $dispatch->date);
+            }
+        });
     }
 
     public function material(): BelongsTo

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\PalletizingReceipts\Schemas;
 
+use App\Models\PalletizingReceipt;
+use App\Services\DocumentNumberGenerator;
 use App\Services\PalletizingReceiptCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -25,14 +27,18 @@ class PalletizingReceiptForm
                             ->required(),
                         TextInput::make('grn_number')
                             ->label('GRN Number')
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new PalletizingReceipt(), 'grn_number', 'PGRN', today()))
                             ->placeholder('PGRN-2026-0001')
-                            ->required(),
+                            ->helperText('Automatically generated with prefix PGRN-YYYY-####.')
+                            ->disabled()
+                            ->dehydrated(),
                         Select::make('dispatch_id')
                             ->relationship('dispatch', 'dispatch_note_number')
                             ->searchable()
                             ->preload(),
                         TextInput::make('dispatch_reference')
-                            ->placeholder('DN-2026-0001'),
+                            ->placeholder('DN-2026-0001')
+                            ->helperText('Optional reference to the source dispatch.'),
                         Select::make('material_id')
                             ->relationship('material', 'name')
                             ->searchable()

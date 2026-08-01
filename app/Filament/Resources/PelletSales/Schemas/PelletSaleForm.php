@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\PelletSales\Schemas;
 
+use App\Models\PelletSale;
+use App\Services\DocumentNumberGenerator;
 use App\Services\PelletSaleCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -24,8 +26,11 @@ class PelletSaleForm
                             ->default(today())
                             ->required(),
                         TextInput::make('receipt_number')
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new PelletSale(), 'receipt_number', 'SALE', today()))
                             ->placeholder('SALE-2026-0001')
-                            ->required(),
+                            ->helperText('Automatically generated with prefix SALE-YYYY-####.')
+                            ->disabled()
+                            ->dehydrated(),
                         TextInput::make('customer_name')
                             ->placeholder('Metro Plastics')
                             ->required(),

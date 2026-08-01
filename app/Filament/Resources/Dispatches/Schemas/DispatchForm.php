@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Dispatches\Schemas;
 
+use App\Models\Dispatch;
+use App\Services\DocumentNumberGenerator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -22,14 +24,18 @@ class DispatchForm
                             ->default(today())
                             ->required(),
                         TextInput::make('dispatch_note_number')
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new Dispatch(), 'dispatch_note_number', 'DN', today()))
                             ->placeholder('DN-2026-0001')
-                            ->required(),
+                            ->helperText('Automatically generated with prefix DN-YYYY-####.')
+                            ->disabled()
+                            ->dehydrated(),
                         Select::make('crushing_production_id')
                             ->relationship('crushingProduction', 'batch_number')
                             ->searchable()
                             ->preload(),
                         TextInput::make('batch_reference')
-                            ->placeholder('CR-BATCH-0001'),
+                            ->placeholder('CR-BATCH-2026-0001')
+                            ->helperText('Optional reference to the source batch.'),
                         Select::make('material_id')
                             ->relationship('material', 'name')
                             ->searchable()

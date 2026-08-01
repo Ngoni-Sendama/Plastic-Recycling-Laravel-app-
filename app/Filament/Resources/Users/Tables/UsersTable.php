@@ -10,7 +10,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Spatie\Permission\Models\Role;
 
 class UsersTable
 {
@@ -56,15 +55,10 @@ class UsersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('role')
-                    ->options([
-                        'Admin' => 'Admin',
-                        'Stock controller' => 'Stock controller',
-                        'Crusher operator' => 'Crusher operator',
-                        'Stock receiver' => 'Stock receiver',
-                        'Palletizing operator' => 'Palletizing operator',
-                        'Supervisor' => 'Supervisor',
-                    ]),
+                SelectFilter::make('roles')
+                    ->relationship('roles', 'name')
+                    ->multiple()
+                    ->preload(),
             ])
             ->recordActions([
                 ViewAction::make(),

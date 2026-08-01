@@ -1,0 +1,22 @@
+Peter Mangalani Store
+Thermal receipt 
+02 May 2026 2:35 AM
+ Africa/Harare
+----------------------------------------
+Receipt: SAL-13
+Cashier: Peter Mangalani
+Status: COMPLETED
+----------------------------------------
+ Websites
+  1 x $80.00 = $80.00
+ Flyers
+  2 x $5.00 = $10.00
+----------------------------------------
+Subtotal: $90.00
+Discount: $0.00
+Tax: $0.00
+Total: $90.00
+Cash: $0.00
+Change: $-90.00
+----------------------------------------
+Thank you for your purchase.

@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\MaterialIntakes\Schemas;
 
 use App\Services\MaterialIntakeCalculator;
+use App\Services\DocumentNumberGenerator;
+use App\Models\MaterialIntake;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,8 +27,11 @@ class MaterialIntakeForm
                             ->required(),
                         TextInput::make('grn_number')
                             ->label('GRN Number')
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new MaterialIntake(), 'grn_number', 'GRN', today()))
                             ->placeholder('GRN-2026-0001')
-                            ->required(),
+                            ->helperText('Automatically generated with prefix GRN-YYYY-####.')
+                            ->disabled()
+                            ->dehydrated(),
                         TextInput::make('buyer_name')
                             ->placeholder('GreenCycle Suppliers')
                             ->required(),

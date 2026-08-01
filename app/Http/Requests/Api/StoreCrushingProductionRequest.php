@@ -18,7 +18,6 @@ class StoreCrushingProductionRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'batch_number' => ['required', 'string', 'max:255'],
             'material_intake_id' => ['nullable', 'integer', 'exists:material_intakes,id'],
             'grn_reference' => ['nullable', 'string', 'max:255'],
             'material_id' => ['nullable', 'integer', 'exists:materials,id'],

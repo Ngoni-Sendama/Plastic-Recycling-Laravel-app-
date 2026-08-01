@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentNumberGenerator;
 use Database\Factories\PelletSaleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,6 +38,15 @@ class PelletSale extends Model
             'amount_received' => 'decimal:2',
             'lock_version' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $pelletSale): void {
+            if ($pelletSale->filled('receipt_number') === false) {
+                $pelletSale->receipt_number = DocumentNumberGenerator::generate($pelletSale, 'receipt_number', 'SALE', $pelletSale->date);
+            }
+        });
     }
 
     public function recordedByUser(): BelongsTo

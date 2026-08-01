@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\CrushingProductions\Schemas;
 
+use App\Models\CrushingProduction;
+use App\Services\DocumentNumberGenerator;
 use App\Services\CrushingProductionCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -24,15 +26,19 @@ class CrushingProductionForm
                             ->default(today())
                             ->required(),
                         TextInput::make('batch_number')
-                            ->placeholder('CR-BATCH-0001')
-                            ->required(),
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new CrushingProduction(), 'batch_number', 'CR-BATCH', today()))
+                            ->placeholder('CR-BATCH-2026-0001')
+                            ->helperText('Automatically generated with prefix CR-BATCH-YYYY-####.')
+                            ->disabled()
+                            ->dehydrated(),
                         Select::make('material_intake_id')
                             ->relationship('materialIntake', 'grn_number')
                             ->searchable()
                             ->preload(),
                         TextInput::make('grn_reference')
                             ->label('GRN Reference')
-                            ->placeholder('GRN-2026-0001'),
+                            ->placeholder('GRN-2026-0001')
+                            ->helperText('Optional reference to the source GRN.'),
                         Select::make('material_id')
                             ->relationship('material', 'name')
                             ->searchable()

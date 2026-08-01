@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentNumberGenerator;
 use Database\Factories\CashRemittanceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +44,15 @@ class CashRemittance extends Model
             'balance_retained' => 'decimal:2',
             'lock_version' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $cashRemittance): void {
+            if ($cashRemittance->filled('voucher_number') === false) {
+                $cashRemittance->voucher_number = DocumentNumberGenerator::generate($cashRemittance, 'voucher_number', 'REM', $cashRemittance->date);
+            }
+        });
     }
 
     public function recordedByUser(): BelongsTo

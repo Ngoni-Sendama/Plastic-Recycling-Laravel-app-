@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\PalletizingProductions\Schemas;
 
+use App\Models\PalletizingProduction;
+use App\Services\DocumentNumberGenerator;
 use App\Services\PalletizingProductionCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -24,15 +26,19 @@ class PalletizingProductionForm
                             ->default(today())
                             ->required(),
                         TextInput::make('batch_number')
-                            ->placeholder('PL-BATCH-0001')
-                            ->required(),
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new PalletizingProduction(), 'batch_number', 'PL-BATCH', today()))
+                            ->placeholder('PL-BATCH-2026-0001')
+                            ->helperText('Automatically generated with prefix PL-BATCH-YYYY-####.')
+                            ->disabled()
+                            ->dehydrated(),
                         Select::make('palletizing_receipt_id')
                             ->relationship('palletizingReceipt', 'grn_number')
                             ->searchable()
                             ->preload(),
                         TextInput::make('grn_reference')
                             ->label('GRN Reference')
-                            ->placeholder('PGRN-2026-0001'),
+                            ->placeholder('PGRN-2026-0001')
+                            ->helperText('Optional reference to the source GRN.'),
                         Select::make('recorded_by_user_id')
                             ->relationship('recordedByUser', 'name')
                             ->searchable()

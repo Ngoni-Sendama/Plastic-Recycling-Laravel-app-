@@ -100,7 +100,6 @@ class SyncTableRegistry
             ],
             'material_intakes' => [
                 'date' => ['required', 'date'],
-                'grn_number' => ['required', 'string', 'max:255'],
                 'buyer_name' => ['required', 'string', 'max:255'],
                 'material_id' => ['nullable', 'integer', 'exists:materials,id'],
                 'material_code' => ['required_without:material_id', 'string', 'exists:materials,code'],
@@ -110,7 +109,6 @@ class SyncTableRegistry
             ],
             'crushing_productions' => [
                 'date' => ['required', 'date'],
-                'batch_number' => ['required', 'string', 'max:255'],
                 'material_intake_id' => ['nullable', 'integer', 'exists:material_intakes,id'],
                 'grn_reference' => ['nullable', 'string', 'max:255'],
                 'material_id' => ['nullable', 'integer', 'exists:materials,id'],
@@ -120,7 +118,6 @@ class SyncTableRegistry
             ],
             'dispatches' => [
                 'date' => ['required', 'date'],
-                'dispatch_note_number' => ['required', 'string', 'max:255'],
                 'crushing_production_id' => ['nullable', 'integer', 'exists:crushing_productions,id'],
                 'batch_reference' => ['nullable', 'string', 'max:255'],
                 'material_id' => ['nullable', 'integer', 'exists:materials,id'],
@@ -130,7 +127,6 @@ class SyncTableRegistry
             ],
             'palletizing_receipts' => [
                 'date' => ['required', 'date'],
-                'grn_number' => ['required', 'string', 'max:255'],
                 'dispatch_id' => ['nullable', 'integer', 'exists:dispatches,id'],
                 'dispatch_reference' => ['nullable', 'string', 'max:255'],
                 'material_id' => ['nullable', 'integer', 'exists:materials,id'],
@@ -140,7 +136,6 @@ class SyncTableRegistry
             ],
             'palletizing_productions' => [
                 'date' => ['required', 'date'],
-                'batch_number' => ['required', 'string', 'max:255'],
                 'palletizing_receipt_id' => ['nullable', 'integer', 'exists:palletizing_receipts,id'],
                 'grn_reference' => ['nullable', 'string', 'max:255'],
                 'chips_input_kg' => ['required', 'numeric', 'min:0'],
@@ -148,14 +143,12 @@ class SyncTableRegistry
             ],
             'pellet_sales' => [
                 'date' => ['required', 'date'],
-                'receipt_number' => ['required', 'string', 'max:255'],
                 'customer_name' => ['required', 'string', 'max:255'],
                 'kg_sold' => ['required', 'numeric', 'min:0'],
                 'unit_price' => ['required', 'numeric', 'min:0'],
             ],
             'cash_remittances' => [
                 'date' => ['required', 'date'],
-                'voucher_number' => ['required', 'string', 'max:255'],
                 'period_covered' => ['nullable', 'string', 'max:255'],
                 'chips_delivered_kg' => ['required', 'numeric', 'min:0'],
                 'recovery_price_per_kg' => ['required', 'numeric', 'min:0'],

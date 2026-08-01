@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Services\DocumentNumberGenerator;
 
 #[Fillable([
     'date',
@@ -43,6 +44,15 @@ class MaterialIntake extends Model
             'total_value' => 'decimal:2',
             'lock_version' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $materialIntake): void {
+            if ($materialIntake->filled('grn_number') === false) {
+                $materialIntake->grn_number = DocumentNumberGenerator::generate($materialIntake, 'grn_number', 'GRN', $materialIntake->date);
+            }
+        });
     }
 
     public function material(): BelongsTo

@@ -18,7 +18,6 @@ class StorePalletizingReceiptRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'grn_number' => ['required', 'string', 'max:255'],
             'dispatch_id' => ['nullable', 'integer', 'exists:dispatches,id'],
             'dispatch_reference' => ['nullable', 'string', 'max:255'],
             'material_id' => ['nullable', 'integer', 'exists:materials,id'],

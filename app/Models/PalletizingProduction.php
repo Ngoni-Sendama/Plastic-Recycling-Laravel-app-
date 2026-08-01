@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentNumberGenerator;
 use Database\Factories\PalletizingProductionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,6 +41,15 @@ class PalletizingProduction extends Model
             'loss_percentage' => 'decimal:4',
             'lock_version' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $palletizingProduction): void {
+            if ($palletizingProduction->filled('batch_number') === false) {
+                $palletizingProduction->batch_number = DocumentNumberGenerator::generate($palletizingProduction, 'batch_number', 'PL-BATCH', $palletizingProduction->date);
+            }
+        });
     }
 
     public function palletizingReceipt(): BelongsTo
