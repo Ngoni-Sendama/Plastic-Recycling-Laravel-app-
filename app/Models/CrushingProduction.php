@@ -48,7 +48,7 @@ class CrushingProduction extends Model
     protected static function booted(): void
     {
         static::creating(function (self $crushingProduction): void {
-            if ($crushingProduction->filled('batch_number') === false) {
+            if (blank($crushingProduction->batch_number)) {
                 $crushingProduction->batch_number = DocumentNumberGenerator::generate($crushingProduction, 'batch_number', 'CR-BATCH', $crushingProduction->date);
             }
         });

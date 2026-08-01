@@ -24,7 +24,6 @@ class PalletizingProductionController extends ApiController
 
         $production = PalletizingProduction::create([
             'date' => $data['date'],
-            'batch_number' => $data['batch_number'],
             'palletizing_receipt_id' => $data['palletizing_receipt_id'] ?? null,
             'grn_reference' => $data['grn_reference'] ?? null,
             'chips_input_kg' => $data['chips_input_kg'],

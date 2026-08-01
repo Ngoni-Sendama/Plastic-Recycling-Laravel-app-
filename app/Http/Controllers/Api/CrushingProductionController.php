@@ -24,7 +24,6 @@ class CrushingProductionController extends ApiController
 
         $production = CrushingProduction::create([
             'date' => $data['date'],
-            'batch_number' => $data['batch_number'],
             'material_intake_id' => $data['material_intake_id'] ?? null,
             'grn_reference' => $data['grn_reference'] ?? null,
             'material_id' => $this->resolveMaterialId($data),

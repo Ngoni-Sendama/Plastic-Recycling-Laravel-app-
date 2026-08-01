@@ -22,7 +22,6 @@ class DispatchController extends ApiController
 
         $dispatch = Dispatch::create([
             'date' => $data['date'],
-            'dispatch_note_number' => $data['dispatch_note_number'],
             'crushing_production_id' => $data['crushing_production_id'] ?? null,
             'batch_reference' => $data['batch_reference'] ?? null,
             'material_id' => $this->resolveMaterialId($data),

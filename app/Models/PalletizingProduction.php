@@ -46,7 +46,7 @@ class PalletizingProduction extends Model
     protected static function booted(): void
     {
         static::creating(function (self $palletizingProduction): void {
-            if ($palletizingProduction->filled('batch_number') === false) {
+            if (blank($palletizingProduction->batch_number)) {
                 $palletizingProduction->batch_number = DocumentNumberGenerator::generate($palletizingProduction, 'batch_number', 'PL-BATCH', $palletizingProduction->date);
             }
         });

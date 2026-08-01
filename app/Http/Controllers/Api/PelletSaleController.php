@@ -24,7 +24,6 @@ class PelletSaleController extends ApiController
 
         $sale = PelletSale::create([
             'date' => $data['date'],
-            'receipt_number' => $data['receipt_number'],
             'customer_name' => $data['customer_name'],
             'kg_sold' => $data['kg_sold'],
             'unit_price' => $data['unit_price'],

@@ -24,7 +24,6 @@ class CashRemittanceController extends ApiController
 
         $remittance = CashRemittance::create([
             'date' => $data['date'],
-            'voucher_number' => $data['voucher_number'],
             'period_covered' => $data['period_covered'] ?? null,
             'chips_delivered_kg' => $data['chips_delivered_kg'],
             'recovery_price_per_kg' => $data['recovery_price_per_kg'],

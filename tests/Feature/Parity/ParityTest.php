@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\FormSchemaController;
 use App\Services\SyncTableRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
@@ -78,42 +80,25 @@ function parityDocumentedSyncTables(): array
 }
 
 /**
- * Parse the mobile modules.js into endpoint + toApi/fromApi key lists.
+ * Get module definitions from FormSchemaController (replaces old modules.js parsing).
  *
  * @return array<string, array{endpoint: string|null, toApi: array<int, string>, fromApi: array<int, string>}>
  */
 function parityMobileModules(): array
 {
-    $js = file_get_contents(base_path('Plastic-Recycling-Business-App/mobile/src/modules.js'));
-
+    $controller = new FormSchemaController();
+    $response = $controller->index(new Request());
+    $data = $response->getData(true);
     $modules = [];
 
-    if (preg_match_all('/^  (\w+): \{/m', $js, $keys, PREG_OFFSET_CAPTURE)) {
-        foreach ($keys[1] as $i => [$key]) {
-            $start = $keys[0][$i][1];
-            $end = isset($keys[0][$i + 1][1])
-                ? $keys[0][$i + 1][1]
-                : strpos($js, "\n};", $start);
-            $block = substr($js, $start, $end - $start);
-
-            $module = ['endpoint' => null, 'toApi' => [], 'fromApi' => []];
-
-            if (preg_match('/endpoint: "([^"]+)"/', $block, $e)) {
-                $module['endpoint'] = $e[1];
-            }
-
-            if (preg_match('/toApi:\s*\(v\)\s*=>\s*\(\{([\s\S]*?)\n\s*\}\)/', $block, $t)) {
-                preg_match_all('/([a-z_]+):\s*v\./', $t[1], $toKeys);
-                $module['toApi'] = array_values(array_unique($toKeys[1]));
-            }
-
-            if (preg_match('/fromApi:\s*\(r\)\s*=>\s*\(\{([\s\S]*?)\n\s*\}\)/', $block, $f)) {
-                preg_match_all('/\br\.([a-z_]+)/', $f[1], $fromKeys);
-                $module['fromApi'] = array_values(array_unique($fromKeys[1]));
-            }
-
-            $modules[$key] = $module;
-        }
+    foreach ($data['modules'] ?? [] as $key => $module) {
+        $modules[$key] = [
+            'endpoint' => $module['endpoint'] ?? null,
+            // toApi values = API field names sent by mobile
+            'toApi' => array_values($module['apiMapping']['toApi'] ?? []),
+            // fromApi values = API field names received from server
+            'fromApi' => array_values($module['apiMapping']['fromApi'] ?? []),
+        ];
     }
 
     return $modules;
@@ -172,11 +157,11 @@ test('documented sync tables (task 05) exist in the sync registry', function () 
     }
 });
 
-test('mobile module endpoints (modules.js) are registered and match sync table names', function () {
+test('mobile module endpoints (form schemas) are registered and match sync table names', function () {
     $modules = parityMobileModules();
 
     if ($modules === []) {
-        $this->markTestSkipped('Mobile modules.js is not present in this checkout.');
+        $this->markTestSkipped('Form schemas have no modules.');
 
         return;
     }
@@ -195,11 +180,11 @@ test('mobile module endpoints (modules.js) are registered and match sync table n
     }
 });
 
-test('mobile toApi payloads (modules.js) are accepted by the API validation rules', function () {
+test('mobile toApi payloads (form schemas) are accepted by the API validation rules', function () {
     $modules = parityMobileModules();
 
     if ($modules === []) {
-        $this->markTestSkipped('Mobile modules.js is not present in this checkout.');
+        $this->markTestSkipped('Form schemas have no modules.');
 
         return;
     }
@@ -217,11 +202,11 @@ test('mobile toApi payloads (modules.js) are accepted by the API validation rule
     }
 });
 
-test('mobile fromApi reads (modules.js) exist in the API resource responses', function () {
+test('mobile fromApi reads (form schemas) exist in the API resource responses', function () {
     $modules = parityMobileModules();
 
     if ($modules === []) {
-        $this->markTestSkipped('Mobile modules.js is not present in this checkout.');
+        $this->markTestSkipped('Form schemas have no modules.');
 
         return;
     }

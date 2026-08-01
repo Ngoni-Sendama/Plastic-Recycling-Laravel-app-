@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CashRemittanceController;
 use App\Http\Controllers\Api\CrushingProductionController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DispatchController;
+use App\Http\Controllers\Api\FormSchemaController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\MaterialIntakeController;
 use App\Http\Controllers\Api\PalletizingProductionController;
@@ -34,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('api.permission:View:StatsOverview');
 
+    Route::get('/form-schemas', [FormSchemaController::class, 'index']);
+
     Route::get('/reports/stock', [ReportController::class, 'stock'])->middleware('api.permission:View:StockSummary');
     Route::get('/reports/production', [ReportController::class, 'production'])->middleware('api.permission:View:ProductionSummary');
     Route::get('/reports/sales', [ReportController::class, 'sales'])->middleware('api.permission:View:SalesSummary');
@@ -44,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/material-intakes', [MaterialIntakeController::class, 'index'])->middleware('api.permission:ViewAny:MaterialIntake');
     Route::post('/material-intakes', [MaterialIntakeController::class, 'store'])->middleware('api.permission:Create:MaterialIntake');
+    Route::patch('/material-intakes/{materialIntake}', [MaterialIntakeController::class, 'update'])->middleware('api.permission:Update:MaterialIntake');
 
     Route::get('/crushing-productions', [CrushingProductionController::class, 'index'])->middleware('api.permission:ViewAny:CrushingProduction');
     Route::post('/crushing-productions', [CrushingProductionController::class, 'store'])->middleware('api.permission:Create:CrushingProduction');

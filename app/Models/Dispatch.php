@@ -43,7 +43,7 @@ class Dispatch extends Model
     protected static function booted(): void
     {
         static::creating(function (self $dispatch): void {
-            if ($dispatch->filled('dispatch_note_number') === false) {
+            if (blank($dispatch->dispatch_note_number)) {
                 $dispatch->dispatch_note_number = DocumentNumberGenerator::generate($dispatch, 'dispatch_note_number', 'DN', $dispatch->date);
             }
         });

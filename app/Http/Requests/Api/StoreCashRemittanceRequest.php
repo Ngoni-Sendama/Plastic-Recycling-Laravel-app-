@@ -18,7 +18,6 @@ class StoreCashRemittanceRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'voucher_number' => ['required', 'string', 'max:255'],
             'period_covered' => ['nullable', 'string', 'max:255'],
             'chips_delivered_kg' => ['required', 'numeric', 'min:0'],
             'recovery_price_per_kg' => ['required', 'numeric', 'min:0'],

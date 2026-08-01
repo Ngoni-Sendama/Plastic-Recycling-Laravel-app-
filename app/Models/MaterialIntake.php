@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DocumentNumberGenerator;
 use Database\Factories\MaterialIntakeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Services\DocumentNumberGenerator;
 
 #[Fillable([
     'date',
@@ -49,7 +49,7 @@ class MaterialIntake extends Model
     protected static function booted(): void
     {
         static::creating(function (self $materialIntake): void {
-            if ($materialIntake->filled('grn_number') === false) {
+            if (blank($materialIntake->grn_number)) {
                 $materialIntake->grn_number = DocumentNumberGenerator::generate($materialIntake, 'grn_number', 'GRN', $materialIntake->date);
             }
         });

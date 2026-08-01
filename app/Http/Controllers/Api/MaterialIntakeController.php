@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\StoreMaterialIntakeRequest;
+use App\Http\Requests\Api\UpdateMaterialIntakeRequest;
 use App\Http\Resources\MaterialIntakeResource;
 use App\Models\MaterialIntake;
 use App\Services\MaterialIntakeCalculator;
@@ -24,7 +25,6 @@ class MaterialIntakeController extends ApiController
 
         $intake = MaterialIntake::create([
             'date' => $data['date'],
-            'grn_number' => $data['grn_number'],
             'buyer_name' => $data['buyer_name'],
             'material_id' => $this->resolveMaterialId($data),
             'gross_weight_kg' => $data['gross_weight_kg'],
@@ -36,5 +36,24 @@ class MaterialIntakeController extends ApiController
         ]);
 
         return new MaterialIntakeResource($intake);
+    }
+
+    public function update(UpdateMaterialIntakeRequest $request, MaterialIntake $materialIntake): MaterialIntakeResource
+    {
+        $data = $request->validated();
+        $calculated = MaterialIntakeCalculator::calculate($data);
+
+        $materialIntake->update([
+            'date' => $data['date'],
+            'buyer_name' => $data['buyer_name'],
+            'material_id' => $this->resolveMaterialId($data),
+            'gross_weight_kg' => $data['gross_weight_kg'],
+            'tare_weight_kg' => $data['tare_weight_kg'],
+            'net_weight_kg' => $calculated['net_weight_kg'],
+            'unit_price' => $data['unit_price'],
+            'total_value' => $calculated['total_value'],
+        ]);
+
+        return new MaterialIntakeResource($materialIntake);
     }
 }

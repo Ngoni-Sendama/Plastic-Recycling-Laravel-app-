@@ -46,7 +46,7 @@ class PalletizingReceipt extends Model
     protected static function booted(): void
     {
         static::creating(function (self $palletizingReceipt): void {
-            if ($palletizingReceipt->filled('grn_number') === false) {
+            if (blank($palletizingReceipt->grn_number)) {
                 $palletizingReceipt->grn_number = DocumentNumberGenerator::generate($palletizingReceipt, 'grn_number', 'PGRN', $palletizingReceipt->date);
             }
         });

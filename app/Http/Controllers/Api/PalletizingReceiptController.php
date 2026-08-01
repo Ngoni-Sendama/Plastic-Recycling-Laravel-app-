@@ -24,7 +24,6 @@ class PalletizingReceiptController extends ApiController
 
         $receipt = PalletizingReceipt::create([
             'date' => $data['date'],
-            'grn_number' => $data['grn_number'],
             'dispatch_id' => $data['dispatch_id'] ?? null,
             'dispatch_reference' => $data['dispatch_reference'] ?? null,
             'material_id' => $this->resolveMaterialId($data),

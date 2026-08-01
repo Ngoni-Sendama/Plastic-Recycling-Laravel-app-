@@ -18,7 +18,6 @@ class StorePelletSaleRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'receipt_number' => ['required', 'string', 'max:255'],
             'customer_name' => ['required', 'string', 'max:255'],
             'kg_sold' => ['required', 'numeric', 'min:0'],
             'unit_price' => ['required', 'numeric', 'min:0'],

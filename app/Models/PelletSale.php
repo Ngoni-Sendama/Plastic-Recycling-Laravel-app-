@@ -43,7 +43,7 @@ class PelletSale extends Model
     protected static function booted(): void
     {
         static::creating(function (self $pelletSale): void {
-            if ($pelletSale->filled('receipt_number') === false) {
+            if (blank($pelletSale->receipt_number)) {
                 $pelletSale->receipt_number = DocumentNumberGenerator::generate($pelletSale, 'receipt_number', 'SALE', $pelletSale->date);
             }
         });

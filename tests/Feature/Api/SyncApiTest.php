@@ -103,15 +103,14 @@ test('push accepts new offline-created records and maps local ids', function () 
         ->assertJsonCount(0, 'rejected');
 
     $material = Material::where('code', 'HDPE')->first();
-    $intake = MaterialIntake::where('grn_number', 'GRN-SYNC-0001')->first();
+    $accepted = $response->json('accepted');
+    $intakeServerId = collect($accepted)->firstWhere('table', 'material_intakes')['server_id'];
+    $intake = MaterialIntake::find($intakeServerId);
 
     expect($material)->not->toBeNull();
     expect($intake)->not->toBeNull();
 
-    $accepted = $response->json('accepted');
-
     expect(collect($accepted)->firstWhere('table', 'materials')['server_id'])->toBe($material->id);
-    expect(collect($accepted)->firstWhere('table', 'material_intakes')['server_id'])->toBe($intake->id);
     expect(collect($accepted)->firstWhere('table', 'material_intakes')['lock_version'])->toBe(1);
 
     // Computed values must be applied server-side.

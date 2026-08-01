@@ -49,7 +49,7 @@ class CashRemittance extends Model
     protected static function booted(): void
     {
         static::creating(function (self $cashRemittance): void {
-            if ($cashRemittance->filled('voucher_number') === false) {
+            if (blank($cashRemittance->voucher_number)) {
                 $cashRemittance->voucher_number = DocumentNumberGenerator::generate($cashRemittance, 'voucher_number', 'REM', $cashRemittance->date);
             }
         });
