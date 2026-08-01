@@ -1,6 +1,9 @@
  
-  - Policies/permissions by role.
+  - [x] Policies/permissions by role.
       - Admin, stock controller, crusher operator, receiver, palletizing operator, supervisor.
+      - Built with Filament Shield (bezhansalleh/filament-shield ^4.3): HasRoles on User, plugin registered, 11 policies generated.
+      - RolePermissionSeeder: 6 business roles + super_admin (139 permissions total), assigned to all 6 seeded staff via syncRoles.
+      - Verification: db:seed runs clean, 61 API/service tests passed (389 assertions), Pint clean.
 
   - [x] API work from 03-laravel-api-mobile-sync.md.
       - Auth API
@@ -9,7 +12,7 @@
       - Workflow endpoints
       - Dashboard API
       - Endpoints: 32 routes registered (Auth 3, Users 5, Materials 3, Workflow 14, Dashboard 1, Sync 2) + 4 Reports endpoints.
-      - Verification: covered by 60 API/service tests (383 assertions), Pint clean.
+      - Verification: covered by 61 API/service tests (389 assertions), Pint clean.
 
   - [x] Sanctum auth from 04-sanctum-auth.md.
       - POST /api/login
@@ -34,6 +37,6 @@
       - Sales Summary
       - Cash Reconciliation
       - Endpoints: GET /api/reports/stock, /api/reports/production, /api/reports/sales, /api/reports/cash-reconciliation (Bearer auth, optional from/to date filters, `{ "data": ... }` envelope)
-      - Verification: 60 API/service tests passed (383 assertions, incl. 13 report tests), Pint clean.
+      - Verification: 61 API/service tests passed (389 assertions, incl. 13 report tests), Pint clean.
 
  

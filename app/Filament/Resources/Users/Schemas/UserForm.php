@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -33,17 +34,25 @@ class UserForm
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                        Select::make('role')
-                            ->options([
-                                'Admin' => 'Admin',
-                                'Stock controller' => 'Stock controller',
-                                'Crusher operator' => 'Crusher operator',
-                                'Stock receiver' => 'Stock receiver',
-                                'Palletizing operator' => 'Palletizing operator',
-                                'Supervisor' => 'Supervisor',
-                            ])
-                            ->default('Stock controller')
-                            ->required(),
+
+                        // New Code fetching dynamically from the roles table using relationship
+                        CheckboxList::make('roles')
+                            ->relationship('roles', 'name')
+                            ->columnSpanFull()
+                            ->columns(3)
+                            ->searchable(),
+                        // Old code
+                        // Select::make('role')
+                        //     ->options([
+                        //         'Admin' => 'Admin',
+                        //         'Stock controller' => 'Stock controller',
+                        //         'Crusher operator' => 'Crusher operator',
+                        //         'Stock receiver' => 'Stock receiver',
+                        //         'Palletizing operator' => 'Palletizing operator',
+                        //         'Supervisor' => 'Supervisor',
+                        //     ])
+                        //     ->default('Stock controller')
+                        //     ->required(),
                     ])
                     ->columns(2),
 

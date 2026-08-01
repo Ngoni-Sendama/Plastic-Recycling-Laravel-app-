@@ -60,6 +60,20 @@ class UserSeeder extends Seeder
                 'password' => 'password123',
                 'role' => 'Supervisor',
             ],
+            [
+                'name' => 'Takudzwa Moyo',
+                'username' => 'stock01',
+                'email' => 'stock01@example.com',
+                'password' => 'password123',
+                'role' => 'Stock controller',
+            ],
+            [
+                'name' => 'Rumbidzai Chirwa',
+                'username' => 'palletizing01',
+                'email' => 'palletizing01@example.com',
+                'password' => 'password123',
+                'role' => 'Palletizing operator',
+            ],
         ];
     }
 }
