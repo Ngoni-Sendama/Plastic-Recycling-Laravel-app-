@@ -22,6 +22,20 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->seedRolesAndPermissions();
+        $this->assignRolesToUsers();
+
+        $this->command->info('Roles, permissions and user assignments seeded.');
+    }
+
+    /**
+     * Create the Shield roles and permissions without touching user assignments.
+     *
+     * This is the entry point used by feature tests that need real Shield roles
+     * in place before exercising the API or Filament screens.
+     */
+    public function seedRolesAndPermissions(): void
+    {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $roleModel = Utils::getRoleModel();
@@ -41,10 +55,6 @@ class RolePermissionSeeder extends Seeder
 
             $role->syncPermissions($permissionModels);
         }
-
-        $this->assignRolesToUsers();
-
-        $this->command->info('Roles, permissions and user assignments seeded.');
     }
 
     /**

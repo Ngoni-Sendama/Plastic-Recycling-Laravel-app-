@@ -8,7 +8,7 @@ uses(RefreshDatabase::class);
 
 function actingApiUser(): User
 {
-    return User::factory()->create(['username' => 'api-user']);
+    return apiUser('Admin', ['username' => 'api-user']);
 }
 
 function apiHeaders(User $user): array

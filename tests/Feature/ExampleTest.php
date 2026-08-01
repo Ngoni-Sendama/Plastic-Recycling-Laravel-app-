@@ -1,7 +1,7 @@
 <?php
 
-test('the application returns a successful response', function () {
-    $response = $this->get('/');
-
-    $response->assertStatus(200);
+test('unknown api routes return a json 404', function () {
+    $this->getJson('/api/does-not-exist')
+        ->assertNotFound()
+        ->assertJsonStructure(['message']);
 });

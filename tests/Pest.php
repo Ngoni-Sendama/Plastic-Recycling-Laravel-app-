@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +49,20 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Create a user with a real Shield role and every permission attached to it.
+ *
+ * Tests run against a fresh database, so the Shield roles/permissions are
+ * seeded on demand before assigning the requested role.
+ */
+function apiUser(string $role = 'Admin', array $attributes = []): User
+{
+    (new RolePermissionSeeder)->seedRolesAndPermissions();
+
+    $user = User::factory()->create($attributes);
+    $user->assignRole($role);
+
+    return $user;
 }

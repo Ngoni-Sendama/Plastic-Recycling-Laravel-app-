@@ -10,7 +10,7 @@ uses(RefreshDatabase::class);
 
 function reportAuth(): User
 {
-    return User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    return apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
 }
 
 test('report endpoints require authentication', function () {

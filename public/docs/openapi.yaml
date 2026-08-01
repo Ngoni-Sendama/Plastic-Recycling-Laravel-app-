@@ -119,6 +119,8 @@ paths:
           schema:
             type: string
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Users (alphabetical by name)
           content:
@@ -142,6 +144,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UserStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: User created
           content:
@@ -159,6 +163,8 @@ paths:
       tags: [Users]
       summary: Show a user
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: User
           content:
@@ -178,6 +184,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UserUpdate'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: User updated
           content:
@@ -190,6 +198,8 @@ paths:
       tags: [Users]
       summary: Delete a user
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: User deleted
           content:
@@ -207,6 +217,8 @@ paths:
       tags: [Materials]
       summary: List materials
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Materials (ordered by code)
           content:
@@ -230,6 +242,8 @@ paths:
             schema:
               $ref: '#/components/schemas/MaterialStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Material created
           content:
@@ -251,6 +265,8 @@ paths:
             schema:
               $ref: '#/components/schemas/MaterialStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Material updated
           content:
@@ -280,6 +296,8 @@ paths:
             format: date
             example: '2026-12-31'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Dashboard summary
           content:
@@ -312,6 +330,8 @@ paths:
             format: date
             example: '2026-12-31'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Stock summary
           content:
@@ -344,6 +364,8 @@ paths:
             format: date
             example: '2026-12-31'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Production summary
           content:
@@ -376,6 +398,8 @@ paths:
             format: date
             example: '2026-12-31'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Sales summary
           content:
@@ -408,6 +432,8 @@ paths:
             format: date
             example: '2026-12-31'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Cash reconciliation summary
           content:
@@ -424,6 +450,8 @@ paths:
       tags: [Workflow]
       summary: List material intakes (newest first)
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Material intakes
           content:
@@ -448,6 +476,8 @@ paths:
             schema:
               $ref: '#/components/schemas/MaterialIntakeStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Intake created
           content:
@@ -461,6 +491,8 @@ paths:
       tags: [Workflow]
       summary: List crushing productions (newest first)
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Crushing productions
           content:
@@ -485,6 +517,8 @@ paths:
             schema:
               $ref: '#/components/schemas/CrushingProductionStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Crushing production created
           content:
@@ -498,6 +532,8 @@ paths:
       tags: [Workflow]
       summary: List dispatches (newest first)
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Dispatches
           content:
@@ -520,6 +556,8 @@ paths:
             schema:
               $ref: '#/components/schemas/DispatchStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Dispatch created
           content:
@@ -533,6 +571,8 @@ paths:
       tags: [Workflow]
       summary: List palletizing receipts (newest first)
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Palletizing receipts
           content:
@@ -557,6 +597,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PalletizingReceiptStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Receipt created
           content:
@@ -570,6 +612,8 @@ paths:
       tags: [Workflow]
       summary: List palletizing productions (newest first)
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Palletizing productions
           content:
@@ -594,6 +638,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PalletizingProductionStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Palletizing production created
           content:
@@ -607,6 +653,8 @@ paths:
       tags: [Workflow]
       summary: List pellet sales (newest first)
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Pellet sales
           content:
@@ -630,6 +678,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PelletSaleStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Sale created
           content:
@@ -643,6 +693,8 @@ paths:
       tags: [Workflow]
       summary: List cash remittances (newest first)
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Cash remittances
           content:
@@ -667,6 +719,8 @@ paths:
             schema:
               $ref: '#/components/schemas/CashRemittanceStore'
       responses:
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '200':
           description: Remittance created
           content:
@@ -763,6 +817,17 @@ components:
               message:
                 type: string
                 example: Unauthenticated.
+    Forbidden:
+      description: Authenticated but the role lacks the required Shield permission
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message]
+            properties:
+              message:
+                type: string
+                example: You do not have permission to perform this action.
     UnprocessableEntity:
       description: Validation failed
       content:

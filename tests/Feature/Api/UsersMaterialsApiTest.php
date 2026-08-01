@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('the users index endpoint lists users', function () {
-    $auth = User::factory()->create(['name' => 'Admin User', 'username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['name' => 'Admin User', 'username' => 'admin', 'role' => 'Admin']);
     User::factory()->create(['name' => 'Crusher User', 'username' => 'crusher01', 'role' => 'Crusher operator']);
 
     $this->actingAs($auth, 'sanctum')
@@ -19,7 +19,7 @@ test('the users index endpoint lists users', function () {
 });
 
 test('the users index endpoint filters by username search', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     User::factory()->create(['name' => 'Crusher One', 'username' => 'crusher01', 'role' => 'Crusher operator']);
     User::factory()->create(['name' => 'Crusher Two', 'username' => 'crusher02', 'role' => 'Crusher operator']);
     User::factory()->create(['name' => 'Receiver One', 'username' => 'receiver01', 'role' => 'Stock receiver']);
@@ -38,7 +38,7 @@ test('the users index endpoint filters by username search', function () {
 });
 
 test('users can be created via the API', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
 
     $response = $this->actingAs($auth, 'sanctum')
         ->postJson('/api/users', [
@@ -58,7 +58,7 @@ test('users can be created via the API', function () {
 });
 
 test('the users show endpoint returns a single user', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     $user = User::factory()->create(['username' => 'crusher01']);
 
     $this->actingAs($auth, 'sanctum')
@@ -68,7 +68,7 @@ test('the users show endpoint returns a single user', function () {
 });
 
 test('users can be updated via the API', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     $user = User::factory()->create(['username' => 'crusher01', 'role' => 'Crusher operator']);
 
     $this->actingAs($auth, 'sanctum')
@@ -82,7 +82,7 @@ test('users can be updated via the API', function () {
 });
 
 test('users can be deleted via the API', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     $user = User::factory()->create(['username' => 'crusher01']);
 
     $this->actingAs($auth, 'sanctum')
@@ -94,7 +94,7 @@ test('users can be deleted via the API', function () {
 });
 
 test('user validation rejects duplicate usernames', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     User::factory()->create(['username' => 'crusher01']);
 
     $this->actingAs($auth, 'sanctum')
@@ -109,7 +109,7 @@ test('user validation rejects duplicate usernames', function () {
 });
 
 test('the materials index endpoint lists materials', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     Material::factory()->create(['code' => 'PP', 'name' => 'Polypropylene']);
     Material::factory()->create(['code' => 'HDPE', 'name' => 'High-density polyethylene']);
 
@@ -121,7 +121,7 @@ test('the materials index endpoint lists materials', function () {
 });
 
 test('materials can be created via the API', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
 
     $this->actingAs($auth, 'sanctum')
         ->postJson('/api/materials', [
@@ -134,7 +134,7 @@ test('materials can be created via the API', function () {
 });
 
 test('materials can be updated via the API', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     $material = Material::factory()->create(['code' => 'PP']);
 
     $this->actingAs($auth, 'sanctum')
@@ -146,7 +146,7 @@ test('materials can be updated via the API', function () {
 });
 
 test('material validation rejects duplicate codes', function () {
-    $auth = User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    $auth = apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
     Material::factory()->create(['code' => 'PP']);
 
     $this->actingAs($auth, 'sanctum')

@@ -25,3 +25,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Mobile app has its own git repo — keep it out of this repo's index
+-Plastic-Recycling-Business-App/

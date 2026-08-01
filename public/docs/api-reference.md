@@ -16,9 +16,41 @@ how the API works and how to integrate it into the React Native app.
 | Response envelope | Collections return `{ "data": [...] }`; single records return the object directly; `message`-style responses return `{ "message": ... }` |
 | Dates | `date` fields are `YYYY-MM-DD`; timestamps are ISO-8601 (`2026-08-01T10:00:00.000000Z`) |
 | Numbers | Amounts/weights are decimals (JSON numbers, e.g. `1050.5`) |
-| Errors | `422 { "message": "...", "errors": { "field": ["..."] } }` for validation; `401` when unauthenticated; `429` when rate-limited |
+| Errors | `422 { "message": "...", "errors": { "field": ["..."] } }` for validation; `401` when unauthenticated; `403` when authenticated but the role lacks permission; `429` when rate-limited |
 | Derived fields | **Never send calculated values** — `net_weight_kg`, `total_value`, `loss_kg`, `loss_percentage`, `amount_payable`, `amount_received`, `max_remittance_due`, `balance_retained` are computed server-side and returned in the response |
 | Material reference | On workflow endpoints, send either `material_id` or `material_code`. If both are sent, **`material_code` wins** |
+
+---
+
+## 1.1 Role-based access control
+
+Every endpoint except `POST /login`, `GET /user`, `POST /logout` and
+`/sync/*` requires a Shield **permission** in addition to a valid token. The
+roles (seeded by `RolePermissionSeeder`) are:
+
+| Role | Can do |
+| --- | --- |
+| `Admin` (also `super_admin`) | Everything — users, materials, all records, reports, sync-conflict review |
+| `Stock controller` | Create/update material intakes + dispatches; view everything else; stock & cash reports |
+| `Crusher operator` | Create/update crushing productions + dispatches; view materials/intakes |
+| `Stock receiver` | Create/update palletizing receipts; view dispatches/materials |
+| `Palletizing operator` | Create/update palletizing productions; view receipts/materials |
+| `Supervisor` | View-only across everything + all four reports |
+
+Permissions follow the Shield naming convention `Action:Resource` (e.g.
+`Create:MaterialIntake`, `ViewAny:User`, `View:StockSummary`). When the
+authenticated user's role lacks the permission for an endpoint, the API
+returns **`403`**:
+
+```json
+{
+  "message": "You do not have permission to perform this action."
+}
+```
+
+The mobile app should treat `403` as "this account cannot do this" — hide or
+disable the action, don't retry. The **login response** includes the user's
+`role` so the app can render role-appropriate screens up front.
 
 ---
 

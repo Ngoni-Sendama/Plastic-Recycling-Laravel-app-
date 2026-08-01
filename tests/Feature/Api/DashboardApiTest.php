@@ -15,7 +15,7 @@ uses(RefreshDatabase::class);
 
 function dashboardAuth(): User
 {
-    return User::factory()->create(['username' => 'admin', 'role' => 'Admin']);
+    return apiUser('Admin', ['username' => 'admin', 'role' => 'Admin']);
 }
 
 test('the dashboard endpoint returns the full summary shape', function () {
