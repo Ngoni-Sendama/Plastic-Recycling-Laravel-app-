@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Livewire\CustomProfileComponent;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -49,7 +50,10 @@ class AdminPanelProvider extends PanelProvider
                     ->shouldShowDeleteAccountForm(false)
                     ->shouldShowSanctumTokens()
                     ->shouldShowBrowserSessionsForm()
-                    ->shouldShowAvatarForm(),
+                    ->shouldShowAvatarForm()
+                    ->customProfileComponents([
+                        CustomProfileComponent::class,
+                    ]),
                 FilamentShieldPlugin::make()
                     ->gridColumns([
                         'default' => 1,
@@ -68,7 +72,7 @@ class AdminPanelProvider extends PanelProvider
                     ])
                     ->navigationLabel('Roles and Permissions')                  // string|Closure|null
                     ->navigationGroup('Setup')                  // string|Closure|null
-                    ->navigationSort(10)                        // int|Closure|null
+                    ->navigationSort(10),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
