@@ -73,6 +73,8 @@ class User extends Authenticatable implements HasAvatar
     public function getFilamentAvatarUrl(): ?string
     {
         $avatarColumn = config('filament-edit-profile.avatar_column', 'avatar_url');
-        return $this->$avatarColumn ? Storage::url($this->$avatarColumn) : null;
+        $disk = config('filament-edit-profile.disk', 'public');
+
+        return $this->$avatarColumn ? Storage::disk($disk)->url($this->$avatarColumn) : null;
     }
 }

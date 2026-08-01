@@ -2,13 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\CashRemittance;
-use App\Models\CrushingProduction;
-use App\Models\Dispatch;
-use App\Models\MaterialIntake;
-use App\Models\PalletizingProduction;
-use App\Models\PalletizingReceipt;
-use App\Models\PelletSale;
+use App\Services\DashboardSummaryService;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Number;
@@ -27,20 +21,16 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $materialPurchasedKg = (float) MaterialIntake::sum('net_weight_kg');
-        $chipsProducedKg = (float) CrushingProduction::sum('output_chips_kg');
-        $chipsDispatchedKg = (float) Dispatch::sum('weight_dispatched_kg');
-        $chipsReceivedKg = (float) PalletizingReceipt::sum('weight_received_kg');
-        $pelletsProducedKg = (float) PalletizingProduction::sum('pellets_output_kg');
-        $pelletsSoldKg = (float) PelletSale::sum('kg_sold');
-        $salesRevenue = (float) PelletSale::sum('amount_received');
-        $cashRemitted = (float) CashRemittance::sum('cash_remitted');
-        $balanceRetained = (float) CashRemittance::sum('balance_retained');
+        $summary = app(DashboardSummaryService::class)->summary();
 
-        $chipsOnHandKg = $chipsProducedKg - $chipsDispatchedKg;
-        $receivingVarianceKg = $chipsDispatchedKg - $chipsReceivedKg;
-        $finishedStockKg = $pelletsProducedKg - $pelletsSoldKg;
-        $cashCollectionGap = $salesRevenue - $cashRemitted;
+        $materialPurchasedKg = (float) $summary['material_purchased_kg'];
+        $chipsOnHandKg = (float) $summary['chips_on_hand_kg'];
+        $receivingVarianceKg = (float) $summary['receiving_variance_kg'];
+        $finishedStockKg = (float) $summary['finished_stock_kg'];
+        $salesRevenue = (float) $summary['sales_revenue'];
+        $cashCollectionGap = (float) $summary['cash_collection_gap'];
+        $balanceRetained = (float) $summary['balance_retained'];
+        $pelletsSoldKg = (float) $summary['pellets_sold_kg'];
 
         return [
             Stat::make('Material purchased', $this->formatKg($materialPurchasedKg))

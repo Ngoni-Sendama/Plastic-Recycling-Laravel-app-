@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CrushingProductions\Schemas;
 
+use App\Services\CrushingProductionCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -79,12 +80,13 @@ class CrushingProductionForm
 
     private static function updateLoss(Get $get, Set $set): null
     {
-        $inputWeight = (float) ($get('input_weight_kg') ?? 0);
-        $outputWeight = (float) ($get('output_chips_kg') ?? 0);
-        $loss = max($inputWeight - $outputWeight, 0);
+        $values = CrushingProductionCalculator::calculate([
+            'input_weight_kg' => $get('input_weight_kg'),
+            'output_chips_kg' => $get('output_chips_kg'),
+        ]);
 
-        $set('loss_kg', round($loss, 3));
-        $set('loss_percentage', $inputWeight > 0 ? round($loss / $inputWeight, 4) : 0);
+        $set('loss_kg', $values['loss_kg']);
+        $set('loss_percentage', $values['loss_percentage']);
 
         return null;
     }

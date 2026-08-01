@@ -9,12 +9,15 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query
+                ->when(auth()->id(), fn (Builder $query, int $userId): Builder => $query->whereKeyNot($userId)))
             ->defaultPaginationPageOption(10)
             ->paginated([10, 25, 50])
             ->columns([

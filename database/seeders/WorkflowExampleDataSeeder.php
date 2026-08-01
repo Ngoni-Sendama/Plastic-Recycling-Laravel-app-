@@ -11,6 +11,12 @@ use App\Models\PalletizingProduction;
 use App\Models\PalletizingReceipt;
 use App\Models\PelletSale;
 use App\Models\User;
+use App\Services\CashRemittanceCalculator;
+use App\Services\CrushingProductionCalculator;
+use App\Services\MaterialIntakeCalculator;
+use App\Services\PalletizingProductionCalculator;
+use App\Services\PalletizingReceiptCalculator;
+use App\Services\PelletSaleCalculator;
 use Illuminate\Database\Seeder;
 
 class WorkflowExampleDataSeeder extends Seeder
@@ -26,7 +32,12 @@ class WorkflowExampleDataSeeder extends Seeder
         $receiver = User::where('username', 'receiver01')->firstOrFail();
         $supervisor = User::where('username', 'supervisor01')->firstOrFail();
 
-        $intakeNetWeight = 1250 - 80;
+        $intakeValues = MaterialIntakeCalculator::calculate([
+            'gross_weight_kg' => 1250,
+            'tare_weight_kg' => 80,
+            'unit_price' => 0.42,
+        ]);
+
         $intake = MaterialIntake::updateOrCreate(
             ['grn_number' => 'GRN-2026-0001'],
             [
@@ -35,14 +46,18 @@ class WorkflowExampleDataSeeder extends Seeder
                 'material_id' => $material->id,
                 'gross_weight_kg' => 1250,
                 'tare_weight_kg' => 80,
-                'net_weight_kg' => $intakeNetWeight,
+                'net_weight_kg' => $intakeValues['net_weight_kg'],
                 'unit_price' => 0.42,
-                'total_value' => $intakeNetWeight * 0.42,
+                'total_value' => $intakeValues['total_value'],
                 'recorded_by_user_id' => $admin->id,
             ],
         );
 
-        $crushingLoss = 1170 - 1098.5;
+        $crushingValues = CrushingProductionCalculator::calculate([
+            'input_weight_kg' => 1170,
+            'output_chips_kg' => 1098.5,
+        ]);
+
         $crushingProduction = CrushingProduction::updateOrCreate(
             ['batch_number' => 'CR-BATCH-0001'],
             [
@@ -52,8 +67,8 @@ class WorkflowExampleDataSeeder extends Seeder
                 'material_id' => $material->id,
                 'input_weight_kg' => 1170,
                 'output_chips_kg' => 1098.5,
-                'loss_kg' => $crushingLoss,
-                'loss_percentage' => round($crushingLoss / 1170, 4),
+                'loss_kg' => $crushingValues['loss_kg'],
+                'loss_percentage' => $crushingValues['loss_percentage'],
                 'recorded_by_user_id' => $crusher->id,
             ],
         );
@@ -71,6 +86,11 @@ class WorkflowExampleDataSeeder extends Seeder
             ],
         );
 
+        $receiptValues = PalletizingReceiptCalculator::calculate([
+            'weight_received_kg' => 1087.5,
+            'rate_per_kg' => 0.18,
+        ]);
+
         $receipt = PalletizingReceipt::updateOrCreate(
             ['grn_number' => 'PGRN-2026-0001'],
             [
@@ -80,12 +100,16 @@ class WorkflowExampleDataSeeder extends Seeder
                 'material_id' => $material->id,
                 'weight_received_kg' => 1087.5,
                 'rate_per_kg' => 0.18,
-                'amount_payable' => 1087.5 * 0.18,
+                'amount_payable' => $receiptValues['amount_payable'],
                 'recorded_by_user_id' => $receiver->id,
             ],
         );
 
-        $palletizingLoss = 1087.5 - 1018.2;
+        $palletizingValues = PalletizingProductionCalculator::calculate([
+            'chips_input_kg' => 1087.5,
+            'pellets_output_kg' => 1018.2,
+        ]);
+
         PalletizingProduction::updateOrCreate(
             ['batch_number' => 'PL-BATCH-0001'],
             [
@@ -94,11 +118,16 @@ class WorkflowExampleDataSeeder extends Seeder
                 'grn_reference' => 'PGRN-2026-0001',
                 'chips_input_kg' => 1087.5,
                 'pellets_output_kg' => 1018.2,
-                'loss_kg' => $palletizingLoss,
-                'loss_percentage' => round($palletizingLoss / 1087.5, 4),
+                'loss_kg' => $palletizingValues['loss_kg'],
+                'loss_percentage' => $palletizingValues['loss_percentage'],
                 'recorded_by_user_id' => $receiver->id,
             ],
         );
+
+        $saleValues = PelletSaleCalculator::calculate([
+            'kg_sold' => 640,
+            'unit_price' => 0.95,
+        ]);
 
         PelletSale::updateOrCreate(
             ['receipt_number' => 'SALE-2026-0001'],
@@ -107,10 +136,17 @@ class WorkflowExampleDataSeeder extends Seeder
                 'customer_name' => 'Metro Plastics',
                 'kg_sold' => 640,
                 'unit_price' => 0.95,
-                'amount_received' => 640 * 0.95,
+                'amount_received' => $saleValues['amount_received'],
                 'recorded_by_user_id' => $supervisor->id,
             ],
         );
+
+        $remittanceValues = CashRemittanceCalculator::calculate([
+            'chips_delivered_kg' => 1087.5,
+            'recovery_price_per_kg' => 0.18,
+            'sales_revenue' => 608,
+            'cash_remitted' => 500,
+        ]);
 
         CashRemittance::updateOrCreate(
             ['voucher_number' => 'REM-2026-0001'],
@@ -121,8 +157,8 @@ class WorkflowExampleDataSeeder extends Seeder
                 'recovery_price_per_kg' => 0.18,
                 'sales_revenue' => 608,
                 'cash_remitted' => 500,
-                'max_remittance_due' => 1087.5 * 0.18,
-                'balance_retained' => 608 - 500,
+                'max_remittance_due' => $remittanceValues['max_remittance_due'],
+                'balance_retained' => $remittanceValues['balance_retained'],
                 'recorded_by_user_id' => $supervisor->id,
             ],
         );

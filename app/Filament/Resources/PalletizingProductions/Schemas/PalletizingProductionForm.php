@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PalletizingProductions\Schemas;
 
+use App\Services\PalletizingProductionCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -74,12 +75,13 @@ class PalletizingProductionForm
 
     private static function updateLoss(Get $get, Set $set): null
     {
-        $inputWeight = (float) ($get('chips_input_kg') ?? 0);
-        $outputWeight = (float) ($get('pellets_output_kg') ?? 0);
-        $loss = max($inputWeight - $outputWeight, 0);
+        $values = PalletizingProductionCalculator::calculate([
+            'chips_input_kg' => $get('chips_input_kg'),
+            'pellets_output_kg' => $get('pellets_output_kg'),
+        ]);
 
-        $set('loss_kg', round($loss, 3));
-        $set('loss_percentage', $inputWeight > 0 ? round($loss / $inputWeight, 4) : 0);
+        $set('loss_kg', $values['loss_kg']);
+        $set('loss_percentage', $values['loss_percentage']);
 
         return null;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PelletSales\Schemas;
 
+use App\Services\PelletSaleCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -34,7 +35,7 @@ class PelletSaleForm
                             ->preload()
                             ->default(fn (): ?int => auth()->id()),
                     ])
-                    ->columns(2),
+                    ->columns(1),
 
                 Section::make('Quantity And Amount')
                     ->description('Enter kg sold and unit price. Amount received is generated.')
@@ -60,16 +61,18 @@ class PelletSaleForm
                             ->disabled()
                             ->dehydrated(),
                     ])
-                    ->columns(3),
+                    ->columns(1),
             ]);
     }
 
     private static function updateAmount(Get $get, Set $set): null
     {
-        $kgSold = (float) ($get('kg_sold') ?? 0);
-        $unitPrice = (float) ($get('unit_price') ?? 0);
+        $values = PelletSaleCalculator::calculate([
+            'kg_sold' => $get('kg_sold'),
+            'unit_price' => $get('unit_price'),
+        ]);
 
-        $set('amount_received', round($kgSold * $unitPrice, 2));
+        $set('amount_received', $values['amount_received']);
 
         return null;
     }

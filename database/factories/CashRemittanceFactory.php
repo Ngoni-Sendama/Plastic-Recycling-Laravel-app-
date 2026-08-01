@@ -33,7 +33,7 @@ class CashRemittanceFactory extends Factory
             'sales_revenue' => $salesRevenue,
             'cash_remitted' => $cashRemitted,
             'max_remittance_due' => $maxRemittanceDue,
-            'balance_retained' => $maxRemittanceDue - $cashRemitted,
+            'balance_retained' => $salesRevenue - $cashRemitted,
             'recorded_by_user_id' => User::factory(),
         ];
     }

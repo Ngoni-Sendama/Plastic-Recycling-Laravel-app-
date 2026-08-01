@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CashRemittances\Schemas;
 
+use App\Services\CashRemittanceCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -33,7 +34,7 @@ class CashRemittanceForm
                             ->preload()
                             ->default(fn (): ?int => auth()->id()),
                     ])
-                    ->columns(2),
+                    ->columns(1),
 
                 Section::make('Cash Reconciliation')
                     ->description('Enter delivered chips, recovery price, sales revenue, and remitted cash. Due and retained values are generated.')
@@ -79,19 +80,21 @@ class CashRemittanceForm
                             ->disabled()
                             ->dehydrated(),
                     ])
-                    ->columns(3),
+                    ->columns(2),
             ]);
     }
 
     private static function updateTotals(Get $get, Set $set): null
     {
-        $chipsDelivered = (float) ($get('chips_delivered_kg') ?? 0);
-        $recoveryPrice = (float) ($get('recovery_price_per_kg') ?? 0);
-        $salesRevenue = (float) ($get('sales_revenue') ?? 0);
-        $cashRemitted = (float) ($get('cash_remitted') ?? 0);
+        $values = CashRemittanceCalculator::calculate([
+            'chips_delivered_kg' => $get('chips_delivered_kg'),
+            'recovery_price_per_kg' => $get('recovery_price_per_kg'),
+            'sales_revenue' => $get('sales_revenue'),
+            'cash_remitted' => $get('cash_remitted'),
+        ]);
 
-        $set('max_remittance_due', round($chipsDelivered * $recoveryPrice, 2));
-        $set('balance_retained', round($salesRevenue - $cashRemitted, 2));
+        $set('max_remittance_due', $values['max_remittance_due']);
+        $set('balance_retained', $values['balance_retained']);
 
         return null;
     }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'date',
@@ -23,7 +24,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CashRemittance extends Model
 {
     /** @use HasFactory<CashRemittanceFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    /**
+     * Default attributes for new instances (DB also defaults this column).
+     */
+    protected $attributes = ['lock_version' => 1];
 
     protected function casts(): array
     {
@@ -35,6 +41,7 @@ class CashRemittance extends Model
             'cash_remitted' => 'decimal:2',
             'max_remittance_due' => 'decimal:2',
             'balance_retained' => 'decimal:2',
+            'lock_version' => 'integer',
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PalletizingReceipts\Schemas;
 
+use App\Services\PalletizingReceiptCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -73,10 +74,12 @@ class PalletizingReceiptForm
 
     private static function updateAmount(Get $get, Set $set): null
     {
-        $weight = (float) ($get('weight_received_kg') ?? 0);
-        $rate = (float) ($get('rate_per_kg') ?? 0);
+        $values = PalletizingReceiptCalculator::calculate([
+            'weight_received_kg' => $get('weight_received_kg'),
+            'rate_per_kg' => $get('rate_per_kg'),
+        ]);
 
-        $set('amount_payable', round($weight * $rate, 2));
+        $set('amount_payable', $values['amount_payable']);
 
         return null;
     }

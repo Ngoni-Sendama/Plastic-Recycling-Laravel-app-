@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'date',
@@ -22,13 +23,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Dispatch extends Model
 {
     /** @use HasFactory<DispatchFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    /**
+     * Default attributes for new instances (DB also defaults this column).
+     */
+    protected $attributes = ['lock_version' => 1];
 
     protected function casts(): array
     {
         return [
             'date' => 'date',
             'weight_dispatched_kg' => 'decimal:3',
+            'lock_version' => 'integer',
         ];
     }
 

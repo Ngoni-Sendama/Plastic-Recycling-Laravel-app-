@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Requests\Api\StoreDispatchRequest;
+use App\Http\Resources\DispatchResource;
+use App\Models\Dispatch;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
+class DispatchController extends ApiController
+{
+    public function index(): AnonymousResourceCollection
+    {
+        return DispatchResource::collection(
+            Dispatch::with(['material', 'recordedByUser'])->latest('date')->get(),
+        );
+    }
+
+    public function store(StoreDispatchRequest $request): DispatchResource
+    {
+        $data = $request->validated();
+
+        $dispatch = Dispatch::create([
+            'date' => $data['date'],
+            'dispatch_note_number' => $data['dispatch_note_number'],
+            'crushing_production_id' => $data['crushing_production_id'] ?? null,
+            'batch_reference' => $data['batch_reference'] ?? null,
+            'material_id' => $this->resolveMaterialId($data),
+            'weight_dispatched_kg' => $data['weight_dispatched_kg'],
+            'transported_by' => $data['transported_by'] ?? null,
+            'recorded_by_user_id' => $request->user()->id,
+        ]);
+
+        return new DispatchResource($dispatch);
+    }
+}

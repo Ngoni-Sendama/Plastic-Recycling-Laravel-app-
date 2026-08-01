@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Materials\Schemas;
 
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class MaterialForm
@@ -11,10 +12,15 @@ class MaterialForm
     {
         return $schema
             ->components([
-                TextInput::make('code')
-                    ->required(),
-                TextInput::make('name')
-                    ->required(),
+                Section::make('Material Information')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('code')
+                            ->required(),
+                        TextInput::make('name')
+                            ->required(),
+                    ]),
             ]);
     }
 }

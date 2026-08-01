@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MaterialIntakes\Schemas;
 
+use App\Services\MaterialIntakeCalculator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -84,13 +85,14 @@ class MaterialIntakeForm
 
     private static function updateTotals(Get $get, Set $set): null
     {
-        $grossWeight = (float) ($get('gross_weight_kg') ?? 0);
-        $tareWeight = (float) ($get('tare_weight_kg') ?? 0);
-        $unitPrice = (float) ($get('unit_price') ?? 0);
-        $netWeight = max($grossWeight - $tareWeight, 0);
+        $values = MaterialIntakeCalculator::calculate([
+            'gross_weight_kg' => $get('gross_weight_kg'),
+            'tare_weight_kg' => $get('tare_weight_kg'),
+            'unit_price' => $get('unit_price'),
+        ]);
 
-        $set('net_weight_kg', round($netWeight, 3));
-        $set('total_value', round($netWeight * $unitPrice, 2));
+        $set('net_weight_kg', $values['net_weight_kg']);
+        $set('total_value', $values['total_value']);
 
         return null;
     }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'date',
@@ -22,7 +23,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PalletizingProduction extends Model
 {
     /** @use HasFactory<PalletizingProductionFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    /**
+     * Default attributes for new instances (DB also defaults this column).
+     */
+    protected $attributes = ['lock_version' => 1];
 
     protected function casts(): array
     {
@@ -32,6 +38,7 @@ class PalletizingProduction extends Model
             'pellets_output_kg' => 'decimal:3',
             'loss_kg' => 'decimal:3',
             'loss_percentage' => 'decimal:4',
+            'lock_version' => 'integer',
         ];
     }
 
