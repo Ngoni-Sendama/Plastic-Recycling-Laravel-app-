@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Resources\BuyerResource;
 use App\Http\Resources\CashRemittanceResource;
 use App\Http\Resources\CrushingProductionResource;
 use App\Http\Resources\DispatchResource;
@@ -10,6 +11,7 @@ use App\Http\Resources\MaterialResource;
 use App\Http\Resources\PalletizingProductionResource;
 use App\Http\Resources\PalletizingReceiptResource;
 use App\Http\Resources\PelletSaleResource;
+use App\Models\Buyer;
 use App\Models\CashRemittance;
 use App\Models\CrushingProduction;
 use App\Models\Dispatch;
@@ -31,6 +33,7 @@ class SyncTableRegistry
     {
         return [
             'materials' => [Material::class, MaterialResource::class, null],
+            'buyers' => [Buyer::class, BuyerResource::class, null],
             'material_intakes' => [MaterialIntake::class, MaterialIntakeResource::class, MaterialIntakeCalculator::class],
             'crushing_productions' => [CrushingProduction::class, CrushingProductionResource::class, CrushingProductionCalculator::class],
             'dispatches' => [Dispatch::class, DispatchResource::class, null],
@@ -94,13 +97,17 @@ class SyncTableRegistry
     public static function rulesFor(string $table, ?int $ignoreId = null): array
     {
         return match ($table) {
+            'buyers' => [
+                'buyer_name' => ['required', 'string', 'max:255'],
+                'contact_number' => ['nullable', 'string', 'max:50'],
+            ],
             'materials' => [
                 'code' => ['required', 'string', 'max:255', Rule::unique('materials', 'code')->ignore($ignoreId)],
                 'name' => ['required', 'string', 'max:255'],
             ],
             'material_intakes' => [
                 'date' => ['required', 'date'],
-                'buyer_name' => ['required', 'string', 'max:255'],
+                'buyer_id' => ['required', 'integer', 'exists:buyers,id'],
                 'material_id' => ['nullable', 'integer', 'exists:materials,id'],
                 'material_code' => ['required_without:material_id', 'string', 'exists:materials,code'],
                 'gross_weight_kg' => ['required', 'numeric', 'min:0'],

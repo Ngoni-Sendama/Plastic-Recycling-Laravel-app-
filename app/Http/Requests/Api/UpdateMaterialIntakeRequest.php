@@ -18,7 +18,7 @@ class UpdateMaterialIntakeRequest extends FormRequest
     {
         return [
             'date' => ['required', 'date'],
-            'buyer_name' => ['required', 'string', 'max:255'],
+            'buyer_id' => ['required', 'integer', 'exists:buyers,id'],
             'material_id' => ['nullable', 'integer', 'exists:materials,id'],
             'material_code' => ['required_without:material_id', 'string', 'exists:materials,code'],
             'gross_weight_kg' => ['required', 'numeric', 'min:0'],

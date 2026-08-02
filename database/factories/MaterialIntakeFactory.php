@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\MaterialIntake;
+use App\Models\Buyer;
 use App\Models\Material;
+use App\Models\MaterialIntake;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -23,11 +24,13 @@ class MaterialIntakeFactory extends Factory
         $tareWeight = fake()->randomFloat(3, 50, 1500);
         $netWeight = $grossWeight - $tareWeight;
         $unitPrice = fake()->randomFloat(2, 0.25, 2.5);
+        $buyer = Buyer::factory()->create();
 
         return [
             'date' => fake()->date(),
             'grn_number' => fake()->unique()->numerify('GRN-#####'),
-            'buyer_name' => fake()->company(),
+            'buyer_id' => $buyer->id,
+            'buyer_name' => $buyer->buyer_name,
             'material_id' => Material::factory(),
             'gross_weight_kg' => $grossWeight,
             'tare_weight_kg' => $tareWeight,

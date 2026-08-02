@@ -16,7 +16,13 @@ class MaterialIntakeResource extends JsonResource
             'id' => $this->id,
             'date' => $this->date?->toDateString(),
             'grn_number' => $this->grn_number,
+            'buyer_id' => $this->buyer_id,
             'buyer_name' => $this->buyer_name,
+            'buyer' => $this->whenLoaded('buyer', fn () => [
+                'id' => $this->buyer->id,
+                'buyer_name' => $this->buyer->buyer_name,
+                'contact_number' => $this->buyer->contact_number,
+            ]),
             'material_id' => $this->material_id,
             'material' => $this->whenLoaded('material', fn () => $this->material->code),
             'gross_weight_kg' => (float) $this->gross_weight_kg,

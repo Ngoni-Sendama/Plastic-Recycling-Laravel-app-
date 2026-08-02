@@ -30,6 +30,9 @@ class MaterialIntakesTable
                 TextColumn::make('material.name')
                     ->label('Material')
                     ->searchable(),
+                TextColumn::make('buyer.buyer_name')
+                    ->label('Buyer')
+                    ->searchable(),
                 TextColumn::make('net_weight_kg')
                     ->label('Net kg')
                     ->numeric()
@@ -38,9 +41,6 @@ class MaterialIntakesTable
                     ->label('Value')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('buyer_name')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('gross_weight_kg')
                     ->numeric()
                     ->sortable()
@@ -67,6 +67,8 @@ class MaterialIntakesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('buyer')
+                    ->relationship('buyer', 'buyer_name'),
                 SelectFilter::make('material')
                     ->relationship('material', 'name'),
                 SelectFilter::make('recordedByUser')

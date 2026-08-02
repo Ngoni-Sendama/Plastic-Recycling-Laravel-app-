@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Buyer;
 use App\Models\Material;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,10 +25,11 @@ test('workflow endpoints require authentication', function () {
 test('material intakes can be created with computed values', function () {
     $user = actingApiUser();
     $material = Material::factory()->create(['code' => 'PP', 'name' => 'Polypropylene']);
+    $buyer = Buyer::factory()->create(['buyer_name' => 'GreenCycle Suppliers']);
 
     $response = $this->postJson('/api/material-intakes', [
         'date' => '2026-07-31',
-        'buyer_name' => 'GreenCycle Suppliers',
+        'buyer_id' => $buyer->id,
         'material_code' => 'PP',
         'gross_weight_kg' => 1250,
         'tare_weight_kg' => 80,
@@ -36,6 +38,7 @@ test('material intakes can be created with computed values', function () {
 
     $response->assertCreated()
         ->assertJsonPath('data.grn_number', 'GRN-2026-0001')
+        ->assertJsonPath('data.buyer_id', $buyer->id)
         ->assertJsonPath('data.net_weight_kg', 1170)
         ->assertJsonPath('data.total_value', 491.4)
         ->assertJsonPath('data.material_id', $material->id);
@@ -50,10 +53,12 @@ test('material intakes can be updated with recomputed values', function () {
     $user = actingApiUser();
     Material::factory()->create(['code' => 'PP', 'name' => 'Polypropylene']);
     $material = Material::factory()->create(['code' => 'HD', 'name' => 'High Density Polyethylene']);
+    $buyer = Buyer::factory()->create(['buyer_name' => 'GreenCycle Suppliers']);
+    $updatedBuyer = Buyer::factory()->create(['buyer_name' => 'Updated Buyer']);
 
     $created = $this->postJson('/api/material-intakes', [
         'date' => '2026-07-31',
-        'buyer_name' => 'GreenCycle Suppliers',
+        'buyer_id' => $buyer->id,
         'material_code' => 'PP',
         'gross_weight_kg' => 1250,
         'tare_weight_kg' => 80,
@@ -62,14 +67,14 @@ test('material intakes can be updated with recomputed values', function () {
 
     $this->patchJson('/api/material-intakes/'.$created->json('data.id'), [
         'date' => '2026-08-01',
-        'buyer_name' => 'Updated Buyer',
+        'buyer_id' => $updatedBuyer->id,
         'material_code' => 'HD',
         'gross_weight_kg' => 1000,
         'tare_weight_kg' => 75,
         'unit_price' => 0.5,
     ], apiHeaders($user))
         ->assertOk()
-        ->assertJsonPath('data.buyer_name', 'Updated Buyer')
+        ->assertJsonPath('data.buyer_id', $updatedBuyer->id)
         ->assertJsonPath('data.material_id', $material->id)
         ->assertJsonPath('data.net_weight_kg', 925)
         ->assertJsonPath('data.total_value', 462.5);
@@ -149,6 +154,16 @@ test('dispatch schema exposes dispatch note mapping for mobile sync', function (
         ->assertOk()
         ->assertJsonPath('modules.dispatch.apiMapping.toApi.dispatchNo', 'dispatch_note_number')
         ->assertJsonPath('modules.dispatch.apiMapping.fromApi.dispatch_note_number', 'dispatchNo');
+});
+
+test('buyer schema exposes buyer mapping for mobile sync', function () {
+    $user = actingApiUser();
+
+    $this->getJson('/api/form-schemas', apiHeaders($user))
+        ->assertOk()
+        ->assertJsonPath('modules.buyers.endpoint', '/buyers')
+        ->assertJsonPath('modules.buyers.apiMapping.toApi.buyerName', 'buyer_name')
+        ->assertJsonPath('modules.buyers.apiMapping.fromApi.buyer_name', 'buyerName');
 });
 
 test('palletizing receipts can be created with computed amount', function () {
@@ -244,14 +259,33 @@ test('workflow validation errors are returned in the documented shape', function
 
 test('an unknown material code is rejected', function () {
     $user = actingApiUser();
+    $buyer = Buyer::factory()->create();
 
     $this->postJson('/api/material-intakes', [
         'date' => '2026-07-31',
-        'buyer_name' => 'GreenCycle Suppliers',
+        'buyer_id' => $buyer->id,
         'material_code' => 'XX',
         'gross_weight_kg' => 1250,
         'tare_weight_kg' => 80,
         'unit_price' => 0.42,
     ], apiHeaders($user))->assertUnprocessable()
         ->assertJsonValidationErrors('material_code');
+});
+
+test('buyers can be created and listed', function () {
+    $user = actingApiUser();
+
+    $response = $this->postJson('/api/buyers', [
+        'buyer_name' => 'Northside Traders',
+        'contact_number' => '0771234567',
+    ], apiHeaders($user));
+
+    $response->assertCreated()
+        ->assertJsonPath('data.buyer_name', 'Northside Traders')
+        ->assertJsonPath('data.contact_number', '0771234567');
+
+    $this->getJson('/api/buyers', apiHeaders($user))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.buyer_name', 'Northside Traders');
 });

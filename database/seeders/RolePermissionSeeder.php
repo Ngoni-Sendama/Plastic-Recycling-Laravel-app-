@@ -74,7 +74,7 @@ class RolePermissionSeeder extends Seeder
     private function roles(): array
     {
         $allResources = [
-            'Material', 'MaterialIntake', 'CrushingProduction', 'Dispatch',
+            'Buyer', 'Material', 'MaterialIntake', 'CrushingProduction', 'Dispatch',
             'PalletizingReceipt', 'PalletizingProduction', 'PelletSale',
             'CashRemittance', 'SyncConflict', 'User', 'Role',
         ];

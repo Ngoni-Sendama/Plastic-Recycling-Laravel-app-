@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'date',
     'grn_number',
     'buyer_name',
+    'buyer_id',
     'material_id',
     'gross_weight_kg',
     'tare_weight_kg',
@@ -58,6 +59,11 @@ class MaterialIntake extends Model
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
+    }
+
+    public function buyer(): BelongsTo
+    {
+        return $this->belongsTo(Buyer::class);
     }
 
     public function recordedByUser(): BelongsTo

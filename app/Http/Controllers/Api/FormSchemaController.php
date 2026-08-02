@@ -18,7 +18,7 @@ class FormSchemaController extends ApiController
                     'fields' => [
                         ['name' => 'date', 'label' => 'Date', 'type' => 'date', 'required' => true],
                         ['name' => 'grn', 'label' => 'GRN no.', 'type' => 'text', 'required' => true],
-                        ['name' => 'buyer', 'label' => 'Buyer name', 'type' => 'text', 'required' => true],
+                        ['name' => 'buyerId', 'label' => 'Buyer', 'type' => 'select', 'required' => true, 'optionsEndpoint' => '/buyers'],
                         ['name' => 'material', 'label' => 'Material', 'type' => 'select', 'required' => true, 'optionsEndpoint' => '/materials'],
                         ['name' => 'gross', 'label' => 'Gross weight (kg)', 'type' => 'number', 'required' => true],
                         ['name' => 'tare', 'label' => 'Tare weight (kg)', 'type' => 'number', 'required' => true],
@@ -29,8 +29,8 @@ class FormSchemaController extends ApiController
                         ['name' => 'value', 'label' => 'Total value', 'format' => 'money'],
                     ],
                     'apiMapping' => [
-                        'toApi' => ['date' => 'date', 'buyer' => 'buyer_name', 'material' => 'material_code', 'gross' => 'gross_weight_kg', 'tare' => 'tare_weight_kg', 'price' => 'unit_price'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'grn_number' => 'grn', 'buyer_name' => 'buyer', 'material' => 'material', 'gross_weight_kg' => 'gross', 'tare_weight_kg' => 'tare', 'unit_price' => 'price', 'net_weight_kg' => 'net', 'total_value' => 'value', 'recorded_by' => 'recordedBy'],
+                        'toApi' => ['date' => 'date', 'buyerId' => 'buyer_id', 'material' => 'material_code', 'gross' => 'gross_weight_kg', 'tare' => 'tare_weight_kg', 'price' => 'unit_price'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'grn_number' => 'grn', 'buyer_id' => 'buyerId', 'buyer_name' => 'buyer', 'material' => 'material', 'gross_weight_kg' => 'gross', 'tare_weight_kg' => 'tare', 'unit_price' => 'price', 'net_weight_kg' => 'net', 'total_value' => 'value', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'crushing' => [
@@ -72,6 +72,21 @@ class FormSchemaController extends ApiController
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'dispatchNo' => 'dispatch_note_number', 'batchRef' => 'batch_reference', 'material' => 'material_code', 'weight' => 'weight_dispatched_kg', 'transportedBy' => 'transported_by'],
                         'fromApi' => ['id' => 'id', 'date' => 'date', 'dispatch_note_number' => 'dispatchNo', 'batch_reference' => 'batchRef', 'material' => 'material', 'weight_dispatched_kg' => 'weight', 'transported_by' => 'transportedBy', 'recorded_by' => 'recordedBy'],
+                    ],
+                ],
+                'buyers' => [
+                    'title' => 'Buyers',
+                    'shortTitle' => 'Buyers',
+                    'endpoint' => '/buyers',
+                    'primary' => ['buyerName'],
+                    'fields' => [
+                        ['name' => 'buyerName', 'label' => 'Buyer name', 'type' => 'text', 'required' => true],
+                        ['name' => 'contactNumber', 'label' => 'Contact number', 'type' => 'text'],
+                    ],
+                    'computedFields' => [],
+                    'apiMapping' => [
+                        'toApi' => ['buyerName' => 'buyer_name', 'contactNumber' => 'contact_number'],
+                        'fromApi' => ['id' => 'id', 'buyer_name' => 'buyerName', 'contact_number' => 'contactNumber', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'receipt' => [

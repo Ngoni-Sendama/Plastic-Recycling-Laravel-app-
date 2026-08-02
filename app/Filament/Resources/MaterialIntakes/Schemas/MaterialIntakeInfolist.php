@@ -16,7 +16,8 @@ class MaterialIntakeInfolist
                     ->schema([
                         TextEntry::make('date')->date(),
                         TextEntry::make('grn_number')->label('GRN Number'),
-                        TextEntry::make('buyer_name'),
+                        TextEntry::make('buyer.buyer_name')->label('Buyer'),
+                        TextEntry::make('buyer.contact_number')->label('Buyer contact')->placeholder('-'),
                         TextEntry::make('material.name')->label('Material'),
                     ])
                     ->columns(2),

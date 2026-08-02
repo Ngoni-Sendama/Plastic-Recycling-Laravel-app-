@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\StoreMaterialIntakeRequest;
 use App\Http\Requests\Api\UpdateMaterialIntakeRequest;
 use App\Http\Resources\MaterialIntakeResource;
+use App\Models\Buyer;
 use App\Models\MaterialIntake;
 use App\Services\MaterialIntakeCalculator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -14,7 +15,7 @@ class MaterialIntakeController extends ApiController
     public function index(): AnonymousResourceCollection
     {
         return MaterialIntakeResource::collection(
-            MaterialIntake::with(['material', 'recordedByUser'])->latest('date')->get(),
+            MaterialIntake::with(['buyer', 'material', 'recordedByUser'])->latest('date')->get(),
         );
     }
 
@@ -25,7 +26,8 @@ class MaterialIntakeController extends ApiController
 
         $intake = MaterialIntake::create([
             'date' => $data['date'],
-            'buyer_name' => $data['buyer_name'],
+            'buyer_id' => $data['buyer_id'],
+            'buyer_name' => $this->resolveBuyerName($data['buyer_id']),
             'material_id' => $this->resolveMaterialId($data),
             'gross_weight_kg' => $data['gross_weight_kg'],
             'tare_weight_kg' => $data['tare_weight_kg'],
@@ -45,7 +47,8 @@ class MaterialIntakeController extends ApiController
 
         $materialIntake->update([
             'date' => $data['date'],
-            'buyer_name' => $data['buyer_name'],
+            'buyer_id' => $data['buyer_id'],
+            'buyer_name' => $this->resolveBuyerName($data['buyer_id']),
             'material_id' => $this->resolveMaterialId($data),
             'gross_weight_kg' => $data['gross_weight_kg'],
             'tare_weight_kg' => $data['tare_weight_kg'],
@@ -55,5 +58,10 @@ class MaterialIntakeController extends ApiController
         ]);
 
         return new MaterialIntakeResource($materialIntake);
+    }
+
+    private function resolveBuyerName(int $buyerId): string
+    {
+        return Buyer::query()->findOrFail($buyerId)->buyer_name;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Buyer;
 use App\Models\CashRemittance;
 use App\Models\CrushingProduction;
 use App\Models\Dispatch;
@@ -31,6 +32,10 @@ class WorkflowExampleDataSeeder extends Seeder
         $crusher = User::where('username', 'crusher01')->firstOrFail();
         $receiver = User::where('username', 'receiver01')->firstOrFail();
         $supervisor = User::where('username', 'supervisor01')->firstOrFail();
+        $buyer = Buyer::firstOrCreate(
+            ['buyer_name' => 'GreenCycle Suppliers'],
+            ['contact_number' => '0770000001']
+        );
 
         $intakeValues = MaterialIntakeCalculator::calculate([
             'gross_weight_kg' => 1250,
@@ -42,6 +47,7 @@ class WorkflowExampleDataSeeder extends Seeder
             ['grn_number' => 'GRN-2026-0001'],
             [
                 'date' => '2026-07-31',
+                'buyer_id' => $buyer->id,
                 'buyer_name' => 'GreenCycle Suppliers',
                 'material_id' => $material->id,
                 'gross_weight_kg' => 1250,

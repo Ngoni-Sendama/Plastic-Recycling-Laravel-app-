@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BuyerController;
 use App\Http\Controllers\Api\CashRemittanceController;
 use App\Http\Controllers\Api\CrushingProductionController;
 use App\Http\Controllers\Api\DashboardController;
@@ -32,6 +33,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/materials', [MaterialController::class, 'index'])->middleware('api.permission:ViewAny:Material');
     Route::post('/materials', [MaterialController::class, 'store'])->middleware('api.permission:Create:Material');
     Route::patch('/materials/{material}', [MaterialController::class, 'update'])->middleware('api.permission:Update:Material');
+
+    Route::get('/buyers', [BuyerController::class, 'index'])->middleware('api.permission:ViewAny:Buyer');
+    Route::post('/buyers', [BuyerController::class, 'store'])->middleware('api.permission:Create:Buyer');
+    Route::patch('/buyers/{buyer}', [BuyerController::class, 'update'])->middleware('api.permission:Update:Buyer');
+    Route::delete('/buyers/{buyer}', [BuyerController::class, 'destroy'])->middleware('api.permission:Delete:Buyer');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('api.permission:View:StatsOverview');
 
