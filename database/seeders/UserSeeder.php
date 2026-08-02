@@ -40,6 +40,13 @@ class UserSeeder extends Seeder
                 'role' => 'Admin',
             ],
             [
+                'name' => 'Mai Badza',
+                'username' => 'ChiefReceiver',
+                'email' => 'josmakopa@gmail.com',
+                'password' => 'maibadza',
+                'role' => 'Admin',
+            ],
+            [
                 'name' => 'Tawanda Moyo',
                 'username' => 'crusher01',
                 'email' => 'crusher01@example.com',

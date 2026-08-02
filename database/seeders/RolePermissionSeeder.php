@@ -174,6 +174,7 @@ class RolePermissionSeeder extends Seeder
     {
         return [
             'admin' => ['super_admin', 'Admin'],
+            'ChiefReceiver' => ['Admin'],
             'crusher01' => ['Crusher operator'],
             'receiver01' => ['Stock receiver'],
             'supervisor01' => ['Supervisor'],
