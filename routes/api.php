@@ -87,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/pellet-sales', [PelletSaleController::class, 'index'])->middleware('api.permission:ViewAny:PelletSale');
     Route::get('/pellet-sales/{pelletSale}', [PelletSaleController::class, 'show'])->middleware('api.permission:View:PelletSale');
+    Route::get('/pellet-sales/{pelletSale}/pdf', [PelletSaleController::class, 'pdf'])->middleware('api.permission:View:PelletSale');
     Route::post('/pellet-sales', [PelletSaleController::class, 'store'])->middleware('api.permission:Create:PelletSale');
     Route::patch('/pellet-sales/{pelletSale}', [PelletSaleController::class, 'update'])->middleware('api.permission:Update:PelletSale');
     Route::delete('/pellet-sales/{pelletSale}', [PelletSaleController::class, 'destroy'])->middleware('api.permission:Delete:PelletSale');

@@ -6,8 +6,10 @@ use App\Http\Requests\Api\StorePelletSaleRequest;
 use App\Http\Resources\PelletSaleResource;
 use App\Models\PelletSale;
 use App\Services\PelletSaleCalculator;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class PelletSaleController extends ApiController
 {
@@ -63,5 +65,14 @@ class PelletSaleController extends ApiController
         $pelletSale->delete();
 
         return response()->json(['message' => 'Pellet sale deleted successfully.']);
+    }
+
+    public function pdf(PelletSale $pelletSale): Response
+    {
+        $pelletSale->load(['recordedByUser']);
+
+        $pdf = Pdf::loadView('pdf.sale-receipt', ['sale' => $pelletSale]);
+
+        return $pdf->download("sale-receipt-{$pelletSale->receipt_number}.pdf");
     }
 }
