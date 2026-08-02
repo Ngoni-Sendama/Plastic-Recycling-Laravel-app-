@@ -75,6 +75,31 @@ test('material intakes can be updated with recomputed values', function () {
         ->assertJsonPath('data.total_value', 462.5);
 });
 
+test('workflow records can be updated and deleted', function () {
+    $user = actingApiUser();
+    Material::factory()->create(['code' => 'PP', 'name' => 'Polypropylene']);
+
+    $crushing = $this->postJson('/api/crushing-productions', [
+        'date' => '2026-07-31',
+        'material_code' => 'PP',
+        'input_weight_kg' => 1170,
+        'output_chips_kg' => 1098.5,
+    ], apiHeaders($user))->assertCreated()->json('data');
+
+    $this->patchJson('/api/crushing-productions/'.$crushing['id'], [
+        'date' => '2026-08-01',
+        'material_code' => 'PP',
+        'input_weight_kg' => 1200,
+        'output_chips_kg' => 1100,
+    ], apiHeaders($user))
+        ->assertOk()
+        ->assertJsonPath('data.loss_kg', 100)
+        ->assertJsonPath('data.loss_percentage', 0.0833);
+
+    $this->deleteJson('/api/crushing-productions/'.$crushing['id'], apiHeaders($user))
+        ->assertOk();
+});
+
 test('crushing productions can be created with computed loss', function () {
     $user = actingApiUser();
     Material::factory()->create(['code' => 'PP']);

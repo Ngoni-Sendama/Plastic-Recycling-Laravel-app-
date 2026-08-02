@@ -6,6 +6,7 @@ use App\Http\Requests\Api\StorePelletSaleRequest;
 use App\Http\Resources\PelletSaleResource;
 use App\Models\PelletSale;
 use App\Services\PelletSaleCalculator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PelletSaleController extends ApiController
@@ -32,5 +33,28 @@ class PelletSaleController extends ApiController
         ]);
 
         return new PelletSaleResource($sale);
+    }
+
+    public function update(StorePelletSaleRequest $request, PelletSale $pelletSale): PelletSaleResource
+    {
+        $data = $request->validated();
+        $calculated = PelletSaleCalculator::calculate($data);
+
+        $pelletSale->update([
+            'date' => $data['date'],
+            'customer_name' => $data['customer_name'],
+            'kg_sold' => $data['kg_sold'],
+            'unit_price' => $data['unit_price'],
+            'amount_received' => $calculated['amount_received'],
+        ]);
+
+        return new PelletSaleResource($pelletSale);
+    }
+
+    public function destroy(PelletSale $pelletSale): JsonResponse
+    {
+        $pelletSale->delete();
+
+        return response()->json(['message' => 'Pellet sale deleted successfully.']);
     }
 }

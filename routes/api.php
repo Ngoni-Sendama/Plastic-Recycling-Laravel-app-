@@ -51,19 +51,31 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/crushing-productions', [CrushingProductionController::class, 'index'])->middleware('api.permission:ViewAny:CrushingProduction');
     Route::post('/crushing-productions', [CrushingProductionController::class, 'store'])->middleware('api.permission:Create:CrushingProduction');
+    Route::patch('/crushing-productions/{crushingProduction}', [CrushingProductionController::class, 'update'])->middleware('api.permission:Update:CrushingProduction');
+    Route::delete('/crushing-productions/{crushingProduction}', [CrushingProductionController::class, 'destroy'])->middleware('api.permission:Delete:CrushingProduction');
 
     Route::get('/dispatches', [DispatchController::class, 'index'])->middleware('api.permission:ViewAny:Dispatch');
     Route::post('/dispatches', [DispatchController::class, 'store'])->middleware('api.permission:Create:Dispatch');
+    Route::patch('/dispatches/{dispatch}', [DispatchController::class, 'update'])->middleware('api.permission:Update:Dispatch');
+    Route::delete('/dispatches/{dispatch}', [DispatchController::class, 'destroy'])->middleware('api.permission:Delete:Dispatch');
 
     Route::get('/palletizing-receipts', [PalletizingReceiptController::class, 'index'])->middleware('api.permission:ViewAny:PalletizingReceipt');
     Route::post('/palletizing-receipts', [PalletizingReceiptController::class, 'store'])->middleware('api.permission:Create:PalletizingReceipt');
+    Route::patch('/palletizing-receipts/{palletizingReceipt}', [PalletizingReceiptController::class, 'update'])->middleware('api.permission:Update:PalletizingReceipt');
+    Route::delete('/palletizing-receipts/{palletizingReceipt}', [PalletizingReceiptController::class, 'destroy'])->middleware('api.permission:Delete:PalletizingReceipt');
 
     Route::get('/palletizing-productions', [PalletizingProductionController::class, 'index'])->middleware('api.permission:ViewAny:PalletizingProduction');
     Route::post('/palletizing-productions', [PalletizingProductionController::class, 'store'])->middleware('api.permission:Create:PalletizingProduction');
+    Route::patch('/palletizing-productions/{palletizingProduction}', [PalletizingProductionController::class, 'update'])->middleware('api.permission:Update:PalletizingProduction');
+    Route::delete('/palletizing-productions/{palletizingProduction}', [PalletizingProductionController::class, 'destroy'])->middleware('api.permission:Delete:PalletizingProduction');
 
     Route::get('/pellet-sales', [PelletSaleController::class, 'index'])->middleware('api.permission:ViewAny:PelletSale');
     Route::post('/pellet-sales', [PelletSaleController::class, 'store'])->middleware('api.permission:Create:PelletSale');
+    Route::patch('/pellet-sales/{pelletSale}', [PelletSaleController::class, 'update'])->middleware('api.permission:Update:PelletSale');
+    Route::delete('/pellet-sales/{pelletSale}', [PelletSaleController::class, 'destroy'])->middleware('api.permission:Delete:PelletSale');
 
     Route::get('/cash-remittances', [CashRemittanceController::class, 'index'])->middleware('api.permission:ViewAny:CashRemittance');
     Route::post('/cash-remittances', [CashRemittanceController::class, 'store'])->middleware('api.permission:Create:CashRemittance');
+    Route::patch('/cash-remittances/{cashRemittance}', [CashRemittanceController::class, 'update'])->middleware('api.permission:Update:CashRemittance');
+    Route::delete('/cash-remittances/{cashRemittance}', [CashRemittanceController::class, 'destroy'])->middleware('api.permission:Delete:CashRemittance');
 });
