@@ -10,6 +10,7 @@ use App\Models\PalletizingProduction;
 use App\Models\PalletizingReceipt;
 use App\Models\PelletSale;
 use Illuminate\Support\Carbon;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -281,7 +282,8 @@ class StockCashControlWorkbookExporter
         foreach ($rows as $index => $row) {
             $rowNumber = $startRow + $index;
             foreach (array_values($row) as $columnIndex => $value) {
-                $sheet->setCellValueByColumnAndRow($columnIndex + 1, $rowNumber, $value);
+                $columnLetter = Coordinate::columnIndexFromString($columnIndex + 1);
+                $sheet->setCellValue($columnLetter.$rowNumber, $value);
             }
         }
     }
