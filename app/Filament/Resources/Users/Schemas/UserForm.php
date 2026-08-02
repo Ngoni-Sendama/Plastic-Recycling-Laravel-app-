@@ -24,6 +24,7 @@ class UserForm
                             ->maxLength(255),
                         TextInput::make('username')
                             ->placeholder('crusher01')
+                            ->autocomplete('off')
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
@@ -62,6 +63,7 @@ class UserForm
                         TextInput::make('password')
                             ->password()
                             ->revealable()
+                            ->autocomplete('new-password')
                             ->placeholder('Minimum 8 characters')
                             ->required(fn (string $operation): bool => $operation === 'create')
                             ->dehydrated(fn (?string $state): bool => filled($state))

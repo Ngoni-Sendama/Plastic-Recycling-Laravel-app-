@@ -33,6 +33,9 @@ class AdminPanelProvider extends PanelProvider
             ->path('')
             ->brandName('Plastic Recycling App')
             ->login()
+            ->favicon(asset('icon.png'))
+            ->brandLogo(asset('icon.png'))
+                  ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::Amber,
             ])
