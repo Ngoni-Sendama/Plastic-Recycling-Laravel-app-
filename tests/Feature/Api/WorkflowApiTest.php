@@ -289,3 +289,31 @@ test('buyers can be created and listed', function () {
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.buyer_name', 'Northside Traders');
 });
+
+test('buyers can be updated and lock version increments', function () {
+    $user = actingApiUser();
+
+    $buyer = Buyer::factory()->create([
+        'buyer_name' => 'Northside Traders',
+        'contact_number' => '0771234567',
+        'lock_version' => 1,
+    ]);
+
+    $this->patchJson('/api/buyers/'.$buyer->id, [
+        'buyer_name' => 'Northside Traders Updated',
+        'contact_number' => '0777654321',
+    ], apiHeaders($user))
+        ->assertOk()
+        ->assertJsonPath('data.buyer_name', 'Northside Traders Updated')
+        ->assertJsonPath('data.contact_number', '0777654321')
+        ->assertJsonPath('data.lock_version', 2);
+});
+
+test('materials can be deleted', function () {
+    $user = actingApiUser();
+    $material = Material::factory()->create(['code' => 'PP', 'name' => 'Polypropylene']);
+
+    $this->deleteJson('/api/materials/'.$material->id, apiHeaders($user))
+        ->assertOk()
+        ->assertJsonPath('message', 'Material deleted successfully.');
+});

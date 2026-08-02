@@ -6,6 +6,7 @@ use App\Http\Requests\Api\StoreMaterialRequest;
 use App\Http\Requests\Api\UpdateMaterialRequest;
 use App\Http\Resources\MaterialResource;
 use App\Models\Material;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MaterialController extends ApiController
@@ -27,5 +28,12 @@ class MaterialController extends ApiController
         $material->update($request->validated());
 
         return new MaterialResource($material);
+    }
+
+    public function destroy(Material $material): JsonResponse
+    {
+        $material->delete();
+
+        return response()->json(['message' => 'Material deleted successfully.']);
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['buyer_name', 'contact_number'])]
+#[Fillable(['buyer_name', 'contact_number', 'lock_version'])]
 class Buyer extends Model
 {
     /** @use HasFactory<BuyerFactory> */

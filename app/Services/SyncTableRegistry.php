@@ -107,7 +107,8 @@ class SyncTableRegistry
             ],
             'material_intakes' => [
                 'date' => ['required', 'date'],
-                'buyer_id' => ['required', 'integer', 'exists:buyers,id'],
+                'buyer_id' => ['nullable', 'integer', 'exists:buyers,id'],
+                'buyer_name' => ['nullable', 'string', 'max:255'],
                 'material_id' => ['nullable', 'integer', 'exists:materials,id'],
                 'material_code' => ['required_without:material_id', 'string', 'exists:materials,code'],
                 'gross_weight_kg' => ['required', 'numeric', 'min:0'],

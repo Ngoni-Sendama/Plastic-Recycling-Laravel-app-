@@ -86,7 +86,7 @@ class FormSchemaController extends ApiController
                     'computedFields' => [],
                     'apiMapping' => [
                         'toApi' => ['buyerName' => 'buyer_name', 'contactNumber' => 'contact_number'],
-                        'fromApi' => ['id' => 'id', 'buyer_name' => 'buyerName', 'contact_number' => 'contactNumber', 'recorded_by' => 'recordedBy'],
+                        'fromApi' => ['id' => 'id', 'buyer_name' => 'buyerName', 'contact_number' => 'contactNumber'],
                     ],
                 ],
                 'receipt' => [

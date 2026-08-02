@@ -23,11 +23,12 @@ class MaterialIntakeController extends ApiController
     {
         $data = $request->validated();
         $calculated = MaterialIntakeCalculator::calculate($data);
+        $buyerId = $data['buyer_id'] ?? null;
 
         $intake = MaterialIntake::create([
             'date' => $data['date'],
-            'buyer_id' => $data['buyer_id'],
-            'buyer_name' => $this->resolveBuyerName($data['buyer_id']),
+            'buyer_id' => $buyerId,
+            'buyer_name' => $buyerId ? $this->resolveBuyerName($buyerId) : ($data['buyer_name'] ?? null),
             'material_id' => $this->resolveMaterialId($data),
             'gross_weight_kg' => $data['gross_weight_kg'],
             'tare_weight_kg' => $data['tare_weight_kg'],
@@ -44,11 +45,12 @@ class MaterialIntakeController extends ApiController
     {
         $data = $request->validated();
         $calculated = MaterialIntakeCalculator::calculate($data);
+        $buyerId = $data['buyer_id'] ?? null;
 
         $materialIntake->update([
             'date' => $data['date'],
-            'buyer_id' => $data['buyer_id'],
-            'buyer_name' => $this->resolveBuyerName($data['buyer_id']),
+            'buyer_id' => $buyerId,
+            'buyer_name' => $buyerId ? $this->resolveBuyerName($buyerId) : ($data['buyer_name'] ?? null),
             'material_id' => $this->resolveMaterialId($data),
             'gross_weight_kg' => $data['gross_weight_kg'],
             'tare_weight_kg' => $data['tare_weight_kg'],

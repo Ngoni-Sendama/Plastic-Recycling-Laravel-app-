@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/materials', [MaterialController::class, 'index'])->middleware('api.permission:ViewAny:Material');
     Route::post('/materials', [MaterialController::class, 'store'])->middleware('api.permission:Create:Material');
     Route::patch('/materials/{material}', [MaterialController::class, 'update'])->middleware('api.permission:Update:Material');
+    Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->middleware('api.permission:Delete:Material');
 
     Route::get('/buyers', [BuyerController::class, 'index'])->middleware('api.permission:ViewAny:Buyer');
     Route::post('/buyers', [BuyerController::class, 'store'])->middleware('api.permission:Create:Buyer');

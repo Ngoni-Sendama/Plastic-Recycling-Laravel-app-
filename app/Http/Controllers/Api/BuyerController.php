@@ -23,13 +23,22 @@ class BuyerController extends ApiController
 
     public function update(UpdateBuyerRequest $request, Buyer $buyer): BuyerResource
     {
-        $buyer->update($request->validated());
+        $buyer->update([
+            ...$request->validated(),
+            'lock_version' => (int) $buyer->lock_version + 1,
+        ]);
 
-        return new BuyerResource($buyer);
+        return new BuyerResource($buyer->refresh());
     }
 
     public function destroy(Buyer $buyer): JsonResponse
     {
+        if ($buyer->materialIntakes()->exists()) {
+            return response()->json([
+                'message' => 'Cannot delete buyer with existing material intake records.',
+            ], 422);
+        }
+
         $buyer->delete();
 
         return response()->json(['message' => 'Buyer deleted successfully.']);

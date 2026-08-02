@@ -231,7 +231,9 @@ test('mobile fromApi reads (form schemas) exist in the API resource responses', 
             $model->load('material');
         }
 
-        $model->load('recordedByUser');
+        if (method_exists($model, 'recordedByUser')) {
+            $model->load('recordedByUser');
+        }
 
         $keys = array_keys((new $resourceClass($model))->resolve());
 
