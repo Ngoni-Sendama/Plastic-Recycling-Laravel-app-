@@ -148,7 +148,7 @@ test('dispatch schema exposes dispatch note mapping for mobile sync', function (
     $this->getJson('/api/form-schemas', apiHeaders($user))
         ->assertOk()
         ->assertJsonPath('modules.dispatch.apiMapping.toApi.dispatchNo', 'dispatch_note_number')
-        ->assertJsonPath('modules.dispatch.apiMapping.fromApi.dispatchNo', 'dispatch_note_number');
+        ->assertJsonPath('modules.dispatch.apiMapping.fromApi.dispatch_note_number', 'dispatchNo');
 });
 
 test('palletizing receipts can be created with computed amount', function () {

@@ -30,7 +30,7 @@ class FormSchemaController extends ApiController
                     ],
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'buyer' => 'buyer_name', 'material' => 'material_code', 'gross' => 'gross_weight_kg', 'tare' => 'tare_weight_kg', 'price' => 'unit_price'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'grn' => 'grn_number', 'buyer' => 'buyer_name', 'material' => 'material', 'gross' => 'gross_weight_kg', 'tare' => 'tare_weight_kg', 'price' => 'unit_price', 'net' => 'net_weight_kg', 'value' => 'total_value', 'recordedBy' => 'recorded_by'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'grn_number' => 'grn', 'buyer_name' => 'buyer', 'material' => 'material', 'gross_weight_kg' => 'gross', 'tare_weight_kg' => 'tare', 'unit_price' => 'price', 'net_weight_kg' => 'net', 'total_value' => 'value', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'crushing' => [
@@ -52,7 +52,7 @@ class FormSchemaController extends ApiController
                     ],
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'grnRef' => 'grn_reference', 'material' => 'material_code', 'input' => 'input_weight_kg', 'output' => 'output_chips_kg'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'batch' => 'batch_number', 'grnRef' => 'grn_reference', 'material' => 'material', 'input' => 'input_weight_kg', 'output' => 'output_chips_kg', 'loss' => 'loss_kg', 'lossPct' => 'loss_percentage', 'recordedBy' => 'recorded_by'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'batch_number' => 'batch', 'grn_reference' => 'grnRef', 'material' => 'material', 'input_weight_kg' => 'input', 'output_chips_kg' => 'output', 'loss_kg' => 'loss', 'loss_percentage' => 'lossPct', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'dispatch' => [
@@ -71,7 +71,7 @@ class FormSchemaController extends ApiController
                     'computedFields' => [],
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'dispatchNo' => 'dispatch_note_number', 'batchRef' => 'batch_reference', 'material' => 'material_code', 'weight' => 'weight_dispatched_kg', 'transportedBy' => 'transported_by'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'dispatchNo' => 'dispatch_note_number', 'batchRef' => 'batch_reference', 'material' => 'material', 'weight' => 'weight_dispatched_kg', 'transportedBy' => 'transported_by', 'recordedBy' => 'recorded_by'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'dispatch_note_number' => 'dispatchNo', 'batch_reference' => 'batchRef', 'material' => 'material', 'weight_dispatched_kg' => 'weight', 'transported_by' => 'transportedBy', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'receipt' => [
@@ -92,7 +92,7 @@ class FormSchemaController extends ApiController
                     ],
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'dispatchRef' => 'dispatch_reference', 'material' => 'material_code', 'weight' => 'weight_received_kg', 'rate' => 'rate_per_kg'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'grn' => 'grn_number', 'dispatchRef' => 'dispatch_reference', 'material' => 'material', 'weight' => 'weight_received_kg', 'rate' => 'rate_per_kg', 'amount' => 'amount_payable', 'recordedBy' => 'recorded_by'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'grn_number' => 'grn', 'dispatch_reference' => 'dispatchRef', 'material' => 'material', 'weight_received_kg' => 'weight', 'rate_per_kg' => 'rate', 'amount_payable' => 'amount', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'palletProd' => [
@@ -113,7 +113,7 @@ class FormSchemaController extends ApiController
                     ],
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'grnRef' => 'grn_reference', 'input' => 'chips_input_kg', 'output' => 'pellets_output_kg'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'batch' => 'batch_number', 'grnRef' => 'grn_reference', 'input' => 'chips_input_kg', 'output' => 'pellets_output_kg', 'loss' => 'loss_kg', 'lossPct' => 'loss_percentage', 'recordedBy' => 'recorded_by'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'batch_number' => 'batch', 'grn_reference' => 'grnRef', 'chips_input_kg' => 'input', 'pellets_output_kg' => 'output', 'loss_kg' => 'loss', 'loss_percentage' => 'lossPct', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'sales' => [
@@ -133,7 +133,7 @@ class FormSchemaController extends ApiController
                     ],
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'customer' => 'customer_name', 'kgSold' => 'kg_sold', 'price' => 'unit_price'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'receiptNo' => 'receipt_number', 'customer' => 'customer_name', 'kgSold' => 'kg_sold', 'price' => 'unit_price', 'amount' => 'amount_received', 'recordedBy' => 'recorded_by'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'receipt_number' => 'receiptNo', 'customer_name' => 'customer', 'kg_sold' => 'kgSold', 'unit_price' => 'price', 'amount_received' => 'amount', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
                 'remittance' => [
@@ -156,7 +156,7 @@ class FormSchemaController extends ApiController
                     ],
                     'apiMapping' => [
                         'toApi' => ['date' => 'date', 'period' => 'period_covered', 'chipsKg' => 'chips_delivered_kg', 'recoveryPrice' => 'recovery_price_per_kg', 'salesRevenue' => 'sales_revenue', 'cashRemitted' => 'cash_remitted'],
-                        'fromApi' => ['id' => 'id', 'date' => 'date', 'voucherNo' => 'voucher_number', 'period' => 'period_covered', 'chipsKg' => 'chips_delivered_kg', 'recoveryPrice' => 'recovery_price_per_kg', 'salesRevenue' => 'sales_revenue', 'cashRemitted' => 'cash_remitted', 'maxDue' => 'max_remittance_due', 'balanceRetained' => 'balance_retained', 'recordedBy' => 'recorded_by'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'voucher_number' => 'voucherNo', 'period_covered' => 'period', 'chips_delivered_kg' => 'chipsKg', 'recovery_price_per_kg' => 'recoveryPrice', 'sales_revenue' => 'salesRevenue', 'cash_remitted' => 'cashRemitted', 'max_remittance_due' => 'maxDue', 'balance_retained' => 'balanceRetained', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
             ],
