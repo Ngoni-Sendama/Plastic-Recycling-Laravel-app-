@@ -313,7 +313,8 @@ test('materials can be deleted', function () {
     $user = actingApiUser();
     $material = Material::factory()->create(['code' => 'PP', 'name' => 'Polypropylene']);
 
-    $this->deleteJson('/api/materials/'.$material->id, apiHeaders($user))
+    $this->actingAs($user, 'sanctum')
+        ->deleteJson('/api/materials/'.$material->id)
         ->assertOk()
         ->assertJsonPath('message', 'Material deleted successfully.');
 });
