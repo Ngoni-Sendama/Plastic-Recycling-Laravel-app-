@@ -142,6 +142,15 @@ test('dispatches can be created', function () {
         ->assertJsonCount(1, 'data');
 });
 
+test('dispatch schema exposes dispatch note mapping for mobile sync', function () {
+    $user = actingApiUser();
+
+    $this->getJson('/api/form-schemas', apiHeaders($user))
+        ->assertOk()
+        ->assertJsonPath('modules.dispatch.apiMapping.toApi.dispatchNo', 'dispatch_note_number')
+        ->assertJsonPath('modules.dispatch.apiMapping.fromApi.dispatchNo', 'dispatch_note_number');
+});
+
 test('palletizing receipts can be created with computed amount', function () {
     $user = actingApiUser();
     Material::factory()->create(['code' => 'PP']);

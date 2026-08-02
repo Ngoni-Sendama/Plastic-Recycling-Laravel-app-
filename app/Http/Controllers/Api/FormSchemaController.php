@@ -70,7 +70,7 @@ class FormSchemaController extends ApiController
                     ],
                     'computedFields' => [],
                     'apiMapping' => [
-                        'toApi' => ['date' => 'date', 'batchRef' => 'batch_reference', 'material' => 'material_code', 'weight' => 'weight_dispatched_kg', 'transportedBy' => 'transported_by'],
+                        'toApi' => ['date' => 'date', 'dispatchNo' => 'dispatch_note_number', 'batchRef' => 'batch_reference', 'material' => 'material_code', 'weight' => 'weight_dispatched_kg', 'transportedBy' => 'transported_by'],
                         'fromApi' => ['id' => 'id', 'date' => 'date', 'dispatchNo' => 'dispatch_note_number', 'batchRef' => 'batch_reference', 'material' => 'material', 'weight' => 'weight_dispatched_kg', 'transportedBy' => 'transported_by', 'recordedBy' => 'recorded_by'],
                     ],
                 ],
