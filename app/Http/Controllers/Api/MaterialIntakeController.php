@@ -19,6 +19,13 @@ class MaterialIntakeController extends ApiController
         );
     }
 
+    public function show(MaterialIntake $materialIntake): MaterialIntakeResource
+    {
+        $materialIntake->load(['buyer', 'material', 'recordedByUser']);
+
+        return new MaterialIntakeResource($materialIntake);
+    }
+
     public function store(StoreMaterialIntakeRequest $request): MaterialIntakeResource
     {
         $data = $request->validated();

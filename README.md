@@ -3,3 +3,4 @@
   - Record every operation done by the user
   - link it to user details page
 - Data we can export as pdf 
+- View Pages of mobile app pages

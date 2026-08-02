@@ -18,6 +18,13 @@ class PalletizingProductionController extends ApiController
         );
     }
 
+    public function show(PalletizingProduction $palletizingProduction): PalletizingProductionResource
+    {
+        $palletizingProduction->load(['recordedByUser']);
+
+        return new PalletizingProductionResource($palletizingProduction);
+    }
+
     public function store(StorePalletizingProductionRequest $request): PalletizingProductionResource
     {
         $data = $request->validated();

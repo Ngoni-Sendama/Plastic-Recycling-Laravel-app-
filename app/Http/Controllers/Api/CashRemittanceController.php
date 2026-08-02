@@ -18,6 +18,13 @@ class CashRemittanceController extends ApiController
         );
     }
 
+    public function show(CashRemittance $cashRemittance): CashRemittanceResource
+    {
+        $cashRemittance->load(['recordedByUser']);
+
+        return new CashRemittanceResource($cashRemittance);
+    }
+
     public function store(StoreCashRemittanceRequest $request): CashRemittanceResource
     {
         $data = $request->validated();

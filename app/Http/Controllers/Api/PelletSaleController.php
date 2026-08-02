@@ -18,6 +18,13 @@ class PelletSaleController extends ApiController
         );
     }
 
+    public function show(PelletSale $pelletSale): PelletSaleResource
+    {
+        $pelletSale->load(['recordedByUser']);
+
+        return new PelletSaleResource($pelletSale);
+    }
+
     public function store(StorePelletSaleRequest $request): PelletSaleResource
     {
         $data = $request->validated();

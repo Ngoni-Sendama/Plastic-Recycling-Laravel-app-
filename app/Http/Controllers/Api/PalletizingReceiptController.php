@@ -18,6 +18,13 @@ class PalletizingReceiptController extends ApiController
         );
     }
 
+    public function show(PalletizingReceipt $palletizingReceipt): PalletizingReceiptResource
+    {
+        $palletizingReceipt->load(['material', 'recordedByUser']);
+
+        return new PalletizingReceiptResource($palletizingReceipt);
+    }
+
     public function store(StorePalletizingReceiptRequest $request): PalletizingReceiptResource
     {
         $data = $request->validated();

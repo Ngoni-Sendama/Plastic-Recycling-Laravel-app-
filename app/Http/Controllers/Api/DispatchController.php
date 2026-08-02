@@ -17,6 +17,13 @@ class DispatchController extends ApiController
         );
     }
 
+    public function show(Dispatch $dispatch): DispatchResource
+    {
+        $dispatch->load(['material', 'recordedByUser']);
+
+        return new DispatchResource($dispatch);
+    }
+
     public function store(StoreDispatchRequest $request): DispatchResource
     {
         $data = $request->validated();

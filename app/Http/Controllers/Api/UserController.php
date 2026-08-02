@@ -33,6 +33,8 @@ class UserController extends Controller
 
     public function show(User $user): UserResource
     {
+        $user->load(['auditLogs' => fn ($query) => $query->latest()->limit(20)]);
+
         return new UserResource($user);
     }
 

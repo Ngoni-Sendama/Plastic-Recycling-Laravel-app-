@@ -18,6 +18,19 @@ class UserResource extends JsonResource
             'username' => $this->username,
             'email' => $this->email,
             'role' => $this->role,
+            'audit_logs' => $this->whenLoaded('auditLogs', function (): array {
+                return $this->auditLogs
+                    ->take(20)
+                    ->map(fn ($log) => [
+                        'id' => $log->id,
+                        'action' => $log->action,
+                        'description' => $log->description,
+                        'source' => $log->source,
+                        'created_at' => $log->created_at?->toISOString(),
+                    ])
+                    ->values()
+                    ->all();
+            }, []),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

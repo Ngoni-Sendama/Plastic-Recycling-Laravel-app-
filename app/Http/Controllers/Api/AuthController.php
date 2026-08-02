@@ -37,7 +37,10 @@ class AuthController extends Controller
      */
     public function user(Request $request): UserResource
     {
-        return new UserResource($request->user());
+        $user = $request->user();
+        $user?->load(['auditLogs' => fn ($query) => $query->latest()->limit(20)]);
+
+        return new UserResource($user);
     }
 
     /**

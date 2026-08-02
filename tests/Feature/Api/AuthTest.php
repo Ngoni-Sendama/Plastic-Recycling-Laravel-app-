@@ -81,6 +81,15 @@ test('the user endpoint returns the authenticated user', function () {
         ->assertJsonMissingPath('data.password');
 });
 
+test('the user endpoint includes audit logs for the authenticated user details tab', function () {
+    $user = User::factory()->create(['username' => 'crusher01']);
+    $token = $user->createToken('mobile')->plainTextToken;
+
+    $this->getJson('/api/user', ['Authorization' => 'Bearer '.$token])
+        ->assertOk()
+        ->assertJsonStructure(['data' => ['audit_logs']]);
+});
+
 test('the user endpoint requires authentication', function () {
     $this->getJson('/api/user')->assertUnauthorized();
 });

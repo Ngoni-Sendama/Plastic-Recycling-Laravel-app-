@@ -16,6 +16,11 @@ class BuyerController extends ApiController
         return BuyerResource::collection(Buyer::query()->orderBy('buyer_name')->get());
     }
 
+    public function show(Buyer $buyer): BuyerResource
+    {
+        return new BuyerResource($buyer);
+    }
+
     public function store(StoreBuyerRequest $request): BuyerResource
     {
         return new BuyerResource(Buyer::create($request->validated()));

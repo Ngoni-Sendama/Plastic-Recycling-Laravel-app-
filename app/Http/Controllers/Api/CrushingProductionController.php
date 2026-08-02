@@ -19,6 +19,13 @@ class CrushingProductionController extends ApiController
         );
     }
 
+    public function show(CrushingProduction $crushingProduction): CrushingProductionResource
+    {
+        $crushingProduction->load(['material', 'recordedByUser']);
+
+        return new CrushingProductionResource($crushingProduction);
+    }
+
     public function store(StoreCrushingProductionRequest $request): CrushingProductionResource
     {
         $data = $request->validated();
