@@ -29,6 +29,11 @@ class PalletizingReceiptResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'grn_number';
 
+    public static function resolveRecordRouteBinding($key, $parameters, $route)
+    {
+        return static::getModel()::withTrashed()->find($parameters[$key]);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return PalletizingReceiptForm::configure($schema);
