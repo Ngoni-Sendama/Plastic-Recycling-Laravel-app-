@@ -26,9 +26,32 @@ class CrushingProductionController extends ApiController
         return new CrushingProductionResource($crushingProduction);
     }
 
-    public function store(StoreCrushingProductionRequest $request): CrushingProductionResource
+    public function store(StoreCrushingProductionRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        $deleted = CrushingProduction::withTrashed()->where('batch_number', $data['batch_number'] ?? null)->first();
+        if ($deleted && $deleted->trashed()) {
+            $calculated = CrushingProductionCalculator::calculate($data);
+            $deleted->restore();
+            $deleted->update([
+                'date' => $data['date'],
+                'material_intake_id' => $data['material_intake_id'] ?? null,
+                'grn_reference' => $data['grn_reference'] ?? null,
+                'material_id' => $this->resolveMaterialId($data),
+                'input_weight_kg' => $data['input_weight_kg'],
+                'output_chips_kg' => $data['output_chips_kg'],
+                'loss_kg' => $calculated['loss_kg'],
+                'loss_percentage' => $calculated['loss_percentage'],
+            ]);
+
+            return response()->json([
+                'message' => 'This record was previously deleted and has been restored.',
+                'data' => new CrushingProductionResource($deleted),
+                'restored' => true,
+            ], 201);
+        }
+
         $calculated = CrushingProductionCalculator::calculate($data);
 
         $production = CrushingProduction::create([
@@ -43,7 +66,11 @@ class CrushingProductionController extends ApiController
             'recorded_by_user_id' => $request->user()->id,
         ]);
 
-        return new CrushingProductionResource($production);
+        return response()->json([
+            'message' => 'Record created successfully.',
+            'data' => new CrushingProductionResource($production),
+            'restored' => false,
+        ], 201);
     }
 
     public function update(UpdateCrushingProductionRequest $request, CrushingProduction $crushingProduction): CrushingProductionResource
@@ -76,5 +103,17 @@ class CrushingProductionController extends ApiController
         $crushingProduction->restore();
 
         return response()->json(['message' => 'Record restored successfully.']);
+    }
+
+    public function trashed(): AnonymousResourceCollection
+    {
+        return CrushingProductionResource::collection(CrushingProduction::onlyTrashed()->latest('date')->get());
+    }
+
+    public function forceDelete(CrushingProduction $crushingProduction): JsonResponse
+    {
+        $crushingProduction->forceDelete();
+
+        return response()->json(['message' => 'Record permanently deleted.']);
     }
 }

@@ -21,9 +21,29 @@ class BuyerController extends ApiController
         return new BuyerResource($buyer);
     }
 
-    public function store(StoreBuyerRequest $request): BuyerResource
+    public function store(StoreBuyerRequest $request): JsonResponse
     {
-        return new BuyerResource(Buyer::create($request->validated()));
+        $data = $request->validated();
+
+        $deleted = Buyer::withTrashed()->where('buyer_name', $data['buyer_name'] ?? null)->first();
+        if ($deleted && $deleted->trashed()) {
+            $deleted->restore();
+            $deleted->update($data);
+
+            return response()->json([
+                'message' => 'This record was previously deleted and has been restored.',
+                'data' => new BuyerResource($deleted),
+                'restored' => true,
+            ], 201);
+        }
+
+        $record = Buyer::create($data);
+
+        return response()->json([
+            'message' => 'Record created successfully.',
+            'data' => new BuyerResource($record),
+            'restored' => false,
+        ], 201);
     }
 
     public function update(UpdateBuyerRequest $request, Buyer $buyer): BuyerResource
@@ -54,5 +74,17 @@ class BuyerController extends ApiController
         $buyer->restore();
 
         return response()->json(['message' => 'Record restored successfully.']);
+    }
+
+    public function trashed(): AnonymousResourceCollection
+    {
+        return BuyerResource::collection(Buyer::onlyTrashed()->latest('date')->get());
+    }
+
+    public function forceDelete(Buyer $buyer): JsonResponse
+    {
+        $buyer->forceDelete();
+
+        return response()->json(['message' => 'Record permanently deleted.']);
     }
 }

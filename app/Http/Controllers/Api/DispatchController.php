@@ -24,9 +24,28 @@ class DispatchController extends ApiController
         return new DispatchResource($dispatch);
     }
 
-    public function store(StoreDispatchRequest $request): DispatchResource
+    public function store(StoreDispatchRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        $deleted = Dispatch::withTrashed()->where('dispatch_note_number', $data['dispatch_note_number'] ?? null)->first();
+        if ($deleted && $deleted->trashed()) {
+            $deleted->restore();
+            $deleted->update([
+                'date' => $data['date'],
+                'crushing_production_id' => $data['crushing_production_id'] ?? null,
+                'batch_reference' => $data['batch_reference'] ?? null,
+                'material_id' => $this->resolveMaterialId($data),
+                'weight_dispatched_kg' => $data['weight_dispatched_kg'],
+                'transported_by' => $data['transported_by'] ?? null,
+            ]);
+
+            return response()->json([
+                'message' => 'This record was previously deleted and has been restored.',
+                'data' => new DispatchResource($deleted),
+                'restored' => true,
+            ], 201);
+        }
 
         $dispatch = Dispatch::create([
             'date' => $data['date'],
@@ -38,7 +57,11 @@ class DispatchController extends ApiController
             'recorded_by_user_id' => $request->user()->id,
         ]);
 
-        return new DispatchResource($dispatch);
+        return response()->json([
+            'message' => 'Record created successfully.',
+            'data' => new DispatchResource($dispatch),
+            'restored' => false,
+        ], 201);
     }
 
     public function update(StoreDispatchRequest $request, Dispatch $dispatch): DispatchResource
@@ -69,5 +92,17 @@ class DispatchController extends ApiController
         $dispatch->restore();
 
         return response()->json(['message' => 'Record restored successfully.']);
+    }
+
+    public function trashed(): AnonymousResourceCollection
+    {
+        return DispatchResource::collection(Dispatch::onlyTrashed()->latest('date')->get());
+    }
+
+    public function forceDelete(Dispatch $dispatch): JsonResponse
+    {
+        $dispatch->forceDelete();
+
+        return response()->json(['message' => 'Record permanently deleted.']);
     }
 }

@@ -27,9 +27,29 @@ class PelletSaleController extends ApiController
         return new PelletSaleResource($pelletSale);
     }
 
-    public function store(StorePelletSaleRequest $request): PelletSaleResource
+    public function store(StorePelletSaleRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        $deleted = PelletSale::withTrashed()->where('receipt_number', $data['receipt_number'] ?? null)->first();
+        if ($deleted && $deleted->trashed()) {
+            $calculated = PelletSaleCalculator::calculate($data);
+            $deleted->restore();
+            $deleted->update([
+                'date' => $data['date'],
+                'customer_name' => $data['customer_name'],
+                'kg_sold' => $data['kg_sold'],
+                'unit_price' => $data['unit_price'],
+                'amount_received' => $calculated['amount_received'],
+            ]);
+
+            return response()->json([
+                'message' => 'This record was previously deleted and has been restored.',
+                'data' => new PelletSaleResource($deleted),
+                'restored' => true,
+            ], 201);
+        }
+
         $calculated = PelletSaleCalculator::calculate($data);
 
         $sale = PelletSale::create([
@@ -41,7 +61,11 @@ class PelletSaleController extends ApiController
             'recorded_by_user_id' => $request->user()->id,
         ]);
 
-        return new PelletSaleResource($sale);
+        return response()->json([
+            'message' => 'Record created successfully.',
+            'data' => new PelletSaleResource($sale),
+            'restored' => false,
+        ], 201);
     }
 
     public function update(StorePelletSaleRequest $request, PelletSale $pelletSale): PelletSaleResource
@@ -72,6 +96,18 @@ class PelletSaleController extends ApiController
         $pelletSale->restore();
 
         return response()->json(['message' => 'Record restored successfully.']);
+    }
+
+    public function trashed(): AnonymousResourceCollection
+    {
+        return PelletSaleResource::collection(PelletSale::onlyTrashed()->latest('date')->get());
+    }
+
+    public function forceDelete(PelletSale $pelletSale): JsonResponse
+    {
+        $pelletSale->forceDelete();
+
+        return response()->json(['message' => 'Record permanently deleted.']);
     }
 
     public function pdf(PelletSale $pelletSale): Response

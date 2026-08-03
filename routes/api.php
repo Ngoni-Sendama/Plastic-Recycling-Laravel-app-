@@ -41,10 +41,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/materials/{material}/restore', [MaterialController::class, 'restore'])->middleware('api.permission:Update:Material');
 
     Route::get('/buyers', [BuyerController::class, 'index'])->middleware('api.permission:ViewAny:Buyer');
+    Route::get('/buyers/trashed', [BuyerController::class, 'trashed'])->middleware('api.permission:ViewAny:Buyer');
     Route::get('/buyers/{buyer}', [BuyerController::class, 'show'])->middleware('api.permission:View:Buyer');
     Route::post('/buyers', [BuyerController::class, 'store'])->middleware('api.permission:Create:Buyer');
     Route::patch('/buyers/{buyer}', [BuyerController::class, 'update'])->middleware('api.permission:Update:Buyer');
     Route::delete('/buyers/{buyer}', [BuyerController::class, 'destroy'])->middleware('api.permission:Delete:Buyer');
+    Route::delete('/buyers/{buyer}/force', [BuyerController::class, 'forceDelete'])->middleware('api.permission:Delete:Buyer');
+    Route::post('/buyers/{buyer}/restore', [BuyerController::class, 'restore'])->middleware('api.permission:Update:Buyer');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('api.permission:View:StatsOverview');
 

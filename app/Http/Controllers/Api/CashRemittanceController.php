@@ -25,9 +25,32 @@ class CashRemittanceController extends ApiController
         return new CashRemittanceResource($cashRemittance);
     }
 
-    public function store(StoreCashRemittanceRequest $request): CashRemittanceResource
+    public function store(StoreCashRemittanceRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        $deleted = CashRemittance::withTrashed()->where('voucher_number', $data['voucher_number'] ?? null)->first();
+        if ($deleted && $deleted->trashed()) {
+            $calculated = CashRemittanceCalculator::calculate($data);
+            $deleted->restore();
+            $deleted->update([
+                'date' => $data['date'],
+                'period_covered' => $data['period_covered'] ?? null,
+                'chips_delivered_kg' => $data['chips_delivered_kg'],
+                'recovery_price_per_kg' => $data['recovery_price_per_kg'],
+                'sales_revenue' => $data['sales_revenue'],
+                'cash_remitted' => $data['cash_remitted'],
+                'max_remittance_due' => $calculated['max_remittance_due'],
+                'balance_retained' => $calculated['balance_retained'],
+            ]);
+
+            return response()->json([
+                'message' => 'This record was previously deleted and has been restored.',
+                'data' => new CashRemittanceResource($deleted),
+                'restored' => true,
+            ], 201);
+        }
+
         $calculated = CashRemittanceCalculator::calculate($data);
 
         $remittance = CashRemittance::create([
@@ -42,7 +65,11 @@ class CashRemittanceController extends ApiController
             'recorded_by_user_id' => $request->user()->id,
         ]);
 
-        return new CashRemittanceResource($remittance);
+        return response()->json([
+            'message' => 'Record created successfully.',
+            'data' => new CashRemittanceResource($remittance),
+            'restored' => false,
+        ], 201);
     }
 
     public function update(StoreCashRemittanceRequest $request, CashRemittance $cashRemittance): CashRemittanceResource
@@ -76,5 +103,17 @@ class CashRemittanceController extends ApiController
         $cashRemittance->restore();
 
         return response()->json(['message' => 'Record restored successfully.']);
+    }
+
+    public function trashed(): AnonymousResourceCollection
+    {
+        return CashRemittanceResource::collection(CashRemittance::onlyTrashed()->latest('date')->get());
+    }
+
+    public function forceDelete(CashRemittance $cashRemittance): JsonResponse
+    {
+        $cashRemittance->forceDelete();
+
+        return response()->json(['message' => 'Record permanently deleted.']);
     }
 }

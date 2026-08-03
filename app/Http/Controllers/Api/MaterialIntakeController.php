@@ -27,9 +27,34 @@ class MaterialIntakeController extends ApiController
         return new MaterialIntakeResource($materialIntake);
     }
 
-    public function store(StoreMaterialIntakeRequest $request): MaterialIntakeResource
+    public function store(StoreMaterialIntakeRequest $request): JsonResponse
     {
         $data = $request->validated();
+
+        $deleted = MaterialIntake::withTrashed()->where('grn_number', $data['grn_number'] ?? null)->first();
+        if ($deleted && $deleted->trashed()) {
+            $calculated = MaterialIntakeCalculator::calculate($data);
+            $buyerId = $data['buyer_id'] ?? null;
+            $deleted->restore();
+            $deleted->update([
+                'date' => $data['date'],
+                'buyer_id' => $buyerId,
+                'buyer_name' => $buyerId ? $this->resolveBuyerName($buyerId) : ($data['buyer_name'] ?? null),
+                'material_id' => $this->resolveMaterialId($data),
+                'gross_weight_kg' => $data['gross_weight_kg'],
+                'tare_weight_kg' => $data['tare_weight_kg'],
+                'unit_price' => $data['unit_price'],
+                'net_weight_kg' => $calculated['net_weight_kg'],
+                'total_value' => $calculated['total_value'],
+            ]);
+
+            return response()->json([
+                'message' => 'This record was previously deleted and has been restored.',
+                'data' => new MaterialIntakeResource($deleted),
+                'restored' => true,
+            ], 201);
+        }
+
         $calculated = MaterialIntakeCalculator::calculate($data);
         $buyerId = $data['buyer_id'] ?? null;
 
@@ -46,7 +71,11 @@ class MaterialIntakeController extends ApiController
             'recorded_by_user_id' => $request->user()->id,
         ]);
 
-        return new MaterialIntakeResource($intake);
+        return response()->json([
+            'message' => 'Record created successfully.',
+            'data' => new MaterialIntakeResource($intake),
+            'restored' => false,
+        ], 201);
     }
 
     public function update(UpdateMaterialIntakeRequest $request, MaterialIntake $materialIntake): MaterialIntakeResource
@@ -82,6 +111,18 @@ class MaterialIntakeController extends ApiController
         $materialIntake->restore();
 
         return response()->json(['message' => 'Record restored successfully.']);
+    }
+
+    public function trashed(): AnonymousResourceCollection
+    {
+        return MaterialIntakeResource::collection(MaterialIntake::onlyTrashed()->latest('date')->get());
+    }
+
+    public function forceDelete(MaterialIntake $materialIntake): JsonResponse
+    {
+        $materialIntake->forceDelete();
+
+        return response()->json(['message' => 'Record permanently deleted.']);
     }
 
     private function resolveBuyerName(int $buyerId): string
