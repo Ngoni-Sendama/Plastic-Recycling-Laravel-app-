@@ -14,7 +14,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
@@ -29,17 +28,6 @@ class BuyerResource extends Resource
     protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'buyer_name';
-
-    public static function resolveRecordRouteBinding(string|int $key, ?\Closure $modifyQuery = null): ?Model
-    {
-        $query = static::getModel()::query()->withTrashed();
-
-        if ($modifyQuery) {
-            $modifyQuery($query);
-        }
-
-        return $query->find($key);
-    }
 
     public static function form(Schema $schema): Schema
     {

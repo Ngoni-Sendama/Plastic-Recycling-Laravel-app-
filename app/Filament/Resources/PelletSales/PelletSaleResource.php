@@ -15,7 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
 class PelletSaleResource extends Resource
@@ -29,17 +30,6 @@ class PelletSaleResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'receipt_number';
-
-    public static function resolveRecordRouteBinding(string|int $key, ?\Closure $modifyQuery = null): ?Model
-    {
-        $query = static::getModel()::query()->withTrashed();
-
-        if ($modifyQuery) {
-            $modifyQuery($query);
-        }
-
-        return $query->find($key);
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -61,6 +51,14 @@ class PelletSaleResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 
     public static function getPages(): array
