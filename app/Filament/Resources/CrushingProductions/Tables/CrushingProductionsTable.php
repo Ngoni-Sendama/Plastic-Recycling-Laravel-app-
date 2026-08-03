@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\CrushingProductions\Tables;
 
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -93,14 +92,7 @@ class CrushingProductionsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->confirmAction(
-                            DeleteAction::make()
-                                ->requiresConfirmation()
-                                ->modalHeading('Delete records')
-                                ->modalDescription('Are you sure you want to delete the selected records? This action cannot be undone.')
-                                ->modalSubmitActionLabel('Yes, delete'),
-                        ),
+                    DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
