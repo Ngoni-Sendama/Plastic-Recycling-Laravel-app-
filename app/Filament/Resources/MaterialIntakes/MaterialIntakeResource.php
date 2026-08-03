@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class MaterialIntakeResource extends Resource
@@ -29,9 +30,15 @@ class MaterialIntakeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'grn_number';
 
-    public static function resolveRecordRouteBinding($key, $parameters, $route)
+    public static function resolveRecordRouteBinding(string|int $key, ?\Closure $modifyQuery = null): ?Model
     {
-        return static::getModel()::withTrashed()->find($parameters[$key]);
+        $query = static::getModel()::query()->withTrashed();
+
+        if ($modifyQuery) {
+            $modifyQuery($query);
+        }
+
+        return $query->find($key);
     }
 
     public static function form(Schema $schema): Schema
