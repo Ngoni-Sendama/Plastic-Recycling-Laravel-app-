@@ -28,7 +28,18 @@ class MaterialController extends ApiController
 
     public function store(StoreMaterialRequest $request): MaterialResource
     {
-        $material = Material::create($request->validated());
+        $data = $request->validated();
+
+        // Check if a soft-deleted record with this code exists
+        $deleted = Material::withTrashed()->where('code', $data['code'])->first();
+        if ($deleted && $deleted->trashed()) {
+            $deleted->restore();
+            $deleted->update($data);
+
+            return new MaterialResource($deleted);
+        }
+
+        $material = Material::create($data);
 
         return new MaterialResource($material);
     }
@@ -45,6 +56,13 @@ class MaterialController extends ApiController
         $material->delete();
 
         return response()->json(['message' => 'Material deleted successfully.']);
+    }
+
+    public function forceDelete(Material $material): JsonResponse
+    {
+        $material->forceDelete();
+
+        return response()->json(['message' => 'Material permanently deleted.']);
     }
 
     public function restore(Material $material): JsonResponse
