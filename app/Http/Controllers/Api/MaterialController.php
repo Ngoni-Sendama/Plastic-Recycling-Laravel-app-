@@ -26,7 +26,7 @@ class MaterialController extends ApiController
         return new MaterialResource($material);
     }
 
-    public function store(StoreMaterialRequest $request): MaterialResource
+    public function store(StoreMaterialRequest $request): JsonResponse
     {
         $data = $request->validated();
 
@@ -36,12 +36,20 @@ class MaterialController extends ApiController
             $deleted->restore();
             $deleted->update($data);
 
-            return new MaterialResource($deleted);
+            return response()->json([
+                'message' => 'This code was previously deleted and has been restored.',
+                'data' => new MaterialResource($deleted),
+                'restored' => true,
+            ]);
         }
 
         $material = Material::create($data);
 
-        return new MaterialResource($material);
+        return response()->json([
+            'message' => 'Material created successfully.',
+            'data' => new MaterialResource($material),
+            'restored' => false,
+        ]);
     }
 
     public function update(UpdateMaterialRequest $request, Material $material): MaterialResource
