@@ -67,6 +67,13 @@ class PelletSaleController extends ApiController
         return response()->json(['message' => 'Pellet sale deleted successfully.']);
     }
 
+    public function restore(PelletSale $pelletSale): JsonResponse
+    {
+        $pelletSale->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
+    }
+
     public function pdf(PelletSale $pelletSale): Response
     {
         $pelletSale->load(['recordedByUser']);

@@ -48,4 +48,11 @@ class BuyerController extends ApiController
 
         return response()->json(['message' => 'Buyer deleted successfully.']);
     }
+
+    public function restore(Buyer $buyer): JsonResponse
+    {
+        $buyer->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
+    }
 }

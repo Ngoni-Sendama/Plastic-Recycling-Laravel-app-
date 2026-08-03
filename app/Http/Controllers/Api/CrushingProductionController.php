@@ -70,4 +70,11 @@ class CrushingProductionController extends ApiController
 
         return response()->json(['message' => 'Crushing production deleted successfully.']);
     }
+
+    public function restore(CrushingProduction $crushingProduction): JsonResponse
+    {
+        $crushingProduction->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
+    }
 }

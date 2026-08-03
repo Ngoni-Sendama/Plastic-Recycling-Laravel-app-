@@ -41,4 +41,11 @@ class MaterialController extends ApiController
 
         return response()->json(['message' => 'Material deleted successfully.']);
     }
+
+    public function restore(Material $material): JsonResponse
+    {
+        $material->restore();
+
+        return response()->json(['message' => 'Material restored successfully.']);
+    }
 }

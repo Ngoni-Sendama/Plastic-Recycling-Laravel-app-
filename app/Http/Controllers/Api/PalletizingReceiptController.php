@@ -68,4 +68,11 @@ class PalletizingReceiptController extends ApiController
 
         return response()->json(['message' => 'Palletizing receipt deleted successfully.']);
     }
+
+    public function restore(PalletizingReceipt $palletizingReceipt): JsonResponse
+    {
+        $palletizingReceipt->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
+    }
 }

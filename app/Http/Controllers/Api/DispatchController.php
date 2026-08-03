@@ -63,4 +63,11 @@ class DispatchController extends ApiController
 
         return response()->json(['message' => 'Dispatch deleted successfully.']);
     }
+
+    public function restore(Dispatch $dispatch): JsonResponse
+    {
+        $dispatch->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
+    }
 }

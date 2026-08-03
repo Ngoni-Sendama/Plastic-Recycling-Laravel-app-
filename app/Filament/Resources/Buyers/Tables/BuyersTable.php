@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Buyers\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -40,7 +41,14 @@ class BuyersTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->confirmAction(
+                            DeleteAction::make()
+                                ->requiresConfirmation()
+                                ->modalHeading('Delete records')
+                                ->modalDescription('Are you sure you want to delete the selected records? This action cannot be undone.')
+                                ->modalSubmitActionLabel('Yes, delete'),
+                        ),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),

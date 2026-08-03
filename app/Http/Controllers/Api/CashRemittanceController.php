@@ -70,4 +70,11 @@ class CashRemittanceController extends ApiController
 
         return response()->json(['message' => 'Cash remittance deleted successfully.']);
     }
+
+    public function restore(CashRemittance $cashRemittance): JsonResponse
+    {
+        $cashRemittance->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
+    }
 }

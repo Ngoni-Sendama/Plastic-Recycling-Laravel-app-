@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\Materials\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
@@ -40,7 +43,16 @@ class MaterialsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->confirmAction(
+                            DeleteAction::make()
+                                ->requiresConfirmation()
+                                ->modalHeading('Delete materials')
+                                ->modalDescription('Are you sure you want to delete the selected materials? This action cannot be undone.')
+                                ->modalSubmitActionLabel('Yes, delete'),
+                        ),
                 ]),
             ]);
     }

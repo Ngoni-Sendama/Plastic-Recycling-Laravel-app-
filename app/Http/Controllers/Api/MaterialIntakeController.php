@@ -8,6 +8,7 @@ use App\Http\Resources\MaterialIntakeResource;
 use App\Models\Buyer;
 use App\Models\MaterialIntake;
 use App\Services\MaterialIntakeCalculator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MaterialIntakeController extends ApiController
@@ -67,6 +68,20 @@ class MaterialIntakeController extends ApiController
         ]);
 
         return new MaterialIntakeResource($materialIntake);
+    }
+
+    public function destroy(MaterialIntake $materialIntake): JsonResponse
+    {
+        $materialIntake->delete();
+
+        return response()->json(['message' => 'Material intake deleted successfully.']);
+    }
+
+    public function restore(MaterialIntake $materialIntake): JsonResponse
+    {
+        $materialIntake->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
     }
 
     private function resolveBuyerName(int $buyerId): string

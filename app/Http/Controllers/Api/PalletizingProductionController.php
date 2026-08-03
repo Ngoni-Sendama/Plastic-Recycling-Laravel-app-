@@ -68,4 +68,11 @@ class PalletizingProductionController extends ApiController
 
         return response()->json(['message' => 'Palletizing production deleted successfully.']);
     }
+
+    public function restore(PalletizingProduction $palletizingProduction): JsonResponse
+    {
+        $palletizingProduction->restore();
+
+        return response()->json(['message' => 'Record restored successfully.']);
+    }
 }
