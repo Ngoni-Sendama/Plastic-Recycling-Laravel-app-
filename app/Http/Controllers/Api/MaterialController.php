@@ -16,6 +16,11 @@ class MaterialController extends ApiController
         return MaterialResource::collection(Material::orderBy('code')->get());
     }
 
+    public function trashed(): AnonymousResourceCollection
+    {
+        return MaterialResource::collection(Material::onlyTrashed()->orderBy('code')->get());
+    }
+
     public function show(Material $material): MaterialResource
     {
         return new MaterialResource($material);
