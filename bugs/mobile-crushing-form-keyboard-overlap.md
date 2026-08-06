@@ -48,3 +48,14 @@ This makes the bottom part of the form difficult or impossible to use on Android
 - No lower input is hidden by the keyboard.
 - Save and back actions remain accessible.
 
+## Resolution
+
+**Fixed:** Added keyboard-aware auto-scrolling and increased bottom padding.
+
+### Changes
+- Added `Keyboard` listener that triggers scroll when keyboard appears
+- Added `ref` + `onFocus`/`onBlur` tracking on all 3 TextInput fields (Input Weight, Output Chips, GRN Reference)
+- `scrollToInput()` uses `measureLayout` to scroll the focused field 120px from the top
+- Increased `paddingBottom` from 160 to 300 to ensure save button is always reachable
+- Added `scrollRef` to ScrollView for programmatic scrolling
+
