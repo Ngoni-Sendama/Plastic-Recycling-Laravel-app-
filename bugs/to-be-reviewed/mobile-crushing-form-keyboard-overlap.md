@@ -58,4 +58,3 @@ This makes the bottom part of the form difficult or impossible to use on Android
 - `scrollToInput()` uses `measureLayout` to scroll the focused field 120px from the top
 - Increased `paddingBottom` from 160 to 300 to ensure save button is always reachable
 - Added `scrollRef` to ScrollView for programmatic scrolling
-

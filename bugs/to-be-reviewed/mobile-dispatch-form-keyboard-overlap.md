@@ -34,3 +34,13 @@ This makes it hard to reach lower fields and interferes with form completion.
 - No important input is hidden behind the keyboard.
 - The user can save without closing the keyboard first.
 
+## Resolution
+
+**Fixed:** Added keyboard-aware auto-scrolling and increased bottom padding.
+
+- Added `Keyboard` listener that triggers scroll when keyboard appears
+- Added `ref` + `onFocus`/`onBlur` tracking on all 3 TextInput fields (Weight, Batch ref, Transported by)
+- `scrollToInput()` uses `measureLayout` to scroll the focused field 120px from the top
+- Increased `paddingBottom` from 160 to 300 to ensure save button is always reachable
+- Added `scrollRef` to ScrollView for programmatic scrolling
+

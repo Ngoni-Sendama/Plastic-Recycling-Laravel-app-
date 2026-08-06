@@ -42,3 +42,14 @@ This allows invalid manual entry and makes the form less consistent with the res
 - The submitted payload contains a valid date string.
 - The user cannot accidentally enter an invalid date format.
 
+## Resolution
+
+**Fixed:** Replaced plain `TextInput` with `DateTimePicker` component.
+
+- Added `DateTimePicker` from `@react-native-community/datetimepicker`
+- Date field now shows a calendar icon button that opens the native date picker
+- On Android: opens as a modal dialog, closes on selection
+- On iOS: renders as an inline spinner
+- Date value stored as `YYYY-MM-DD` string for API compatibility
+- Added `Platform` and `Keyboard` imports for cross-platform support
+
