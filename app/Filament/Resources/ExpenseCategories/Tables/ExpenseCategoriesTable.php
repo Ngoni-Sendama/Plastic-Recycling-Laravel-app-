@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources\ExpenseCategories\Tables;
 
+use App\Filament\Exports\ExpenseCategoryExporter;
+use App\Filament\Imports\ExepenseCategoryImporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\ImportAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
@@ -39,6 +43,12 @@ class ExpenseCategoriesTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(ExepenseCategoryImporter::class),
+                ExportAction::make()
+                    ->exporter(ExpenseCategoryExporter::class),
             ])
             ->filters([
                 TrashedFilter::make(),

@@ -6,6 +6,7 @@ use App\Models\CashRemittance;
 use App\Models\CrushingProduction;
 use App\Models\Dispatch;
 use App\Models\MaterialIntake;
+use App\Models\PalletizingProduction;
 use App\Models\PelletSale;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,16 @@ Route::middleware('auth')->group(function () {
 
         return $pdf->download("dispatch-{$dispatch->dispatch_note_number}.pdf");
     })->name('web.dispatches.pdf');
+
+    Route::get('/palletizing-productions/{palletizingProduction}/pdf', function (PalletizingProduction $palletizingProduction) {
+        $palletizingProduction->load(['recordedByUser', 'palletizingReceipt']);
+
+        $pdf = Pdf::loadView('pdf.palletizing-production', [
+            'production' => $palletizingProduction,
+        ]);
+
+        return $pdf->download("palletizing-production-{$palletizingProduction->batch_number}.pdf");
+    })->name('web.palletizing-productions.pdf');
 
     Route::get('/pellet-sales/{pelletSale}/pdf', function (PelletSale $pelletSale) {
         $pelletSale->load(['recordedByUser']);

@@ -16,6 +16,12 @@ class ViewPelletSale extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('downloadPdf')
+                ->label('PDF')
+                ->icon('heroicon-m-document-arrow-down')
+                ->color('success')
+                ->url(fn () => route('web.pellet-sales.pdf', $this->record))
+                ->openUrlInNewTab(),
             Action::make('thermalPrint')
                 ->label('Thermal Printer')
                 ->icon('heroicon-m-printer')
