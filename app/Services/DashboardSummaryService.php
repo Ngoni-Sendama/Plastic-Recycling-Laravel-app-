@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CashRemittance;
 use App\Models\CrushingProduction;
 use App\Models\Dispatch;
+use App\Models\Expense;
 use App\Models\MaterialIntake;
 use App\Models\PalletizingProduction;
 use App\Models\PalletizingReceipt;
@@ -34,12 +35,14 @@ class DashboardSummaryService
         $salesRevenue = $this->scopedSum(PelletSale::query(), 'amount_received', $from, $to);
         $cashRemitted = $this->scopedSum(CashRemittance::query(), 'cash_remitted', $from, $to);
         $balanceRetained = $this->scopedSum(CashRemittance::query(), 'balance_retained', $from, $to);
+        $totalExpenses = $this->scopedSum(Expense::query(), 'amount', $from, $to);
 
         $chipsOnHandKg = $chipsProducedKg - $chipsDispatchedKg;
         $receivingVarianceKg = $chipsDispatchedKg - $chipsReceivedKg;
         $finishedStockKg = $pelletsProducedKg - $pelletsSoldKg;
         $cashCollectionGap = $salesRevenue - $cashRemitted;
         $outstandingToCrushing = $payableToCrushing - $cashRemitted;
+        $closingBalance = $salesRevenue - $cashRemitted - $totalExpenses;
 
         return [
             'material_purchased_kg' => $materialPurchasedKg,
@@ -59,6 +62,8 @@ class DashboardSummaryService
             'balance_retained' => $balanceRetained,
             'cash_collection_gap' => $cashCollectionGap,
             'outstanding_to_crushing' => $outstandingToCrushing,
+            'total_expenses' => $totalExpenses,
+            'closing_balance' => $closingBalance,
             'reconciliation_status' => $cashCollectionGap <= $balanceRetained ? 'balanced' : 'shortfall',
         ];
     }

@@ -11,7 +11,7 @@ use Illuminate\Support\Number;
 class StatsOverview extends StatsOverviewWidget
 {
     use HasWidgetShield;
-    
+
     protected ?string $pollingInterval = '30s';
 
     protected static bool $isLazy = false;
@@ -34,6 +34,8 @@ class StatsOverview extends StatsOverviewWidget
         $cashCollectionGap = (float) $summary['cash_collection_gap'];
         $balanceRetained = (float) $summary['balance_retained'];
         $pelletsSoldKg = (float) $summary['pellets_sold_kg'];
+        $totalExpenses = (float) $summary['total_expenses'];
+        $closingBalance = (float) $summary['closing_balance'];
 
         return [
             Stat::make('Material purchased', $this->formatKg($materialPurchasedKg))
@@ -65,6 +67,16 @@ class StatsOverview extends StatsOverviewWidget
                 ->description('Balance retained: '.$this->formatMoney($balanceRetained))
                 ->descriptionIcon($cashCollectionGap <= $balanceRetained ? 'heroicon-m-check-circle' : 'heroicon-m-banknotes')
                 ->color($cashCollectionGap <= $balanceRetained ? 'success' : 'warning'),
+
+            Stat::make('Total expenses', $this->formatMoney($totalExpenses))
+                ->description('Cash outflows recorded')
+                ->descriptionIcon('heroicon-m-receipt-percent')
+                ->color('warning'),
+
+            Stat::make('Closing balance', $this->formatMoney($closingBalance))
+                ->description($closingBalance >= 0 ? 'Cash remaining after expenses' : 'Expenses exceed available cash')
+                ->descriptionIcon($closingBalance >= 0 ? 'heroicon-m-check-circle' : 'heroicon-m-exclamation-triangle')
+                ->color($closingBalance >= 0 ? 'success' : 'danger'),
         ];
     }
 

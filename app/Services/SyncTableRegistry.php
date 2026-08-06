@@ -6,6 +6,8 @@ use App\Http\Resources\BuyerResource;
 use App\Http\Resources\CashRemittanceResource;
 use App\Http\Resources\CrushingProductionResource;
 use App\Http\Resources\DispatchResource;
+use App\Http\Resources\ExpenseCategoryResource;
+use App\Http\Resources\ExpenseResource;
 use App\Http\Resources\MaterialIntakeResource;
 use App\Http\Resources\MaterialResource;
 use App\Http\Resources\PalletizingProductionResource;
@@ -15,6 +17,8 @@ use App\Models\Buyer;
 use App\Models\CashRemittance;
 use App\Models\CrushingProduction;
 use App\Models\Dispatch;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Material;
 use App\Models\MaterialIntake;
 use App\Models\PalletizingProduction;
@@ -41,6 +45,8 @@ class SyncTableRegistry
             'palletizing_productions' => [PalletizingProduction::class, PalletizingProductionResource::class, PalletizingProductionCalculator::class],
             'pellet_sales' => [PelletSale::class, PelletSaleResource::class, PelletSaleCalculator::class],
             'cash_remittances' => [CashRemittance::class, CashRemittanceResource::class, CashRemittanceCalculator::class],
+            'expense_categories' => [ExpenseCategory::class, ExpenseCategoryResource::class, null],
+            'expenses' => [Expense::class, ExpenseResource::class, null],
         ];
     }
 
@@ -162,6 +168,18 @@ class SyncTableRegistry
                 'recovery_price_per_kg' => ['required', 'numeric', 'min:0'],
                 'sales_revenue' => ['required', 'numeric', 'min:0'],
                 'cash_remitted' => ['required', 'numeric', 'min:0'],
+            ],
+            'expense_categories' => [
+                'name' => ['required', 'string', 'max:255'],
+                'description' => ['nullable', 'string'],
+                'is_active' => ['nullable', 'boolean'],
+            ],
+            'expenses' => [
+                'date' => ['required', 'date'],
+                'expense_category_id' => ['required', 'integer', 'exists:expense_categories,id'],
+                'description' => ['nullable', 'string', 'max:1000'],
+                'amount' => ['required', 'numeric', 'min:0.01'],
+                'payment_method' => ['nullable', 'string', 'max:255'],
             ],
             default => [],
         };

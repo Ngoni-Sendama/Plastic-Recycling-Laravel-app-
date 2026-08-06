@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\CashRemittanceController;
 use App\Http\Controllers\Api\CrushingProductionController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DispatchController;
+use App\Http\Controllers\Api\ExpenseCategoryController;
+use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\FormSchemaController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\MaterialIntakeController;
@@ -90,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/palletizing-productions', [PalletizingProductionController::class, 'store'])->middleware('api.permission:Create:PalletizingProduction');
     Route::patch('/palletizing-productions/{palletizingProduction}', [PalletizingProductionController::class, 'update'])->middleware('api.permission:Update:PalletizingProduction');
     Route::delete('/palletizing-productions/{palletizingProduction}', [PalletizingProductionController::class, 'destroy'])->middleware('api.permission:Delete:PalletizingProduction');
+    Route::post('/palletizing-productions/{palletizingProduction}/restore', [PalletizingProductionController::class, 'restore'])->middleware('api.permission:Update:PalletizingProduction');
 
     Route::get('/pellet-sales', [PelletSaleController::class, 'index'])->middleware('api.permission:ViewAny:PelletSale');
     Route::get('/pellet-sales/{pelletSale}', [PelletSaleController::class, 'show'])->middleware('api.permission:View:PelletSale');
@@ -103,4 +106,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cash-remittances', [CashRemittanceController::class, 'store'])->middleware('api.permission:Create:CashRemittance');
     Route::patch('/cash-remittances/{cashRemittance}', [CashRemittanceController::class, 'update'])->middleware('api.permission:Update:CashRemittance');
     Route::delete('/cash-remittances/{cashRemittance}', [CashRemittanceController::class, 'destroy'])->middleware('api.permission:Delete:CashRemittance');
+
+    Route::get('/expense-categories', [ExpenseCategoryController::class, 'index'])->middleware('api.permission:ViewAny:ExpenseCategory');
+    Route::get('/expense-categories/trashed', [ExpenseCategoryController::class, 'trashed'])->middleware('api.permission:ViewAny:ExpenseCategory');
+    Route::get('/expense-categories/{expenseCategory}', [ExpenseCategoryController::class, 'show'])->middleware('api.permission:View:ExpenseCategory');
+    Route::post('/expense-categories', [ExpenseCategoryController::class, 'store'])->middleware('api.permission:Create:ExpenseCategory');
+    Route::patch('/expense-categories/{expenseCategory}', [ExpenseCategoryController::class, 'update'])->middleware('api.permission:Update:ExpenseCategory');
+    Route::delete('/expense-categories/{expenseCategory}', [ExpenseCategoryController::class, 'destroy'])->middleware('api.permission:Delete:ExpenseCategory');
+    Route::delete('/expense-categories/{expenseCategory}/force', [ExpenseCategoryController::class, 'forceDelete'])->middleware('api.permission:Delete:ExpenseCategory');
+    Route::post('/expense-categories/{expenseCategory}/restore', [ExpenseCategoryController::class, 'restore'])->middleware('api.permission:Update:ExpenseCategory');
+
+    Route::get('/expenses', [ExpenseController::class, 'index'])->middleware('api.permission:ViewAny:Expense');
+    Route::get('/expenses/trashed', [ExpenseController::class, 'trashed'])->middleware('api.permission:ViewAny:Expense');
+    Route::get('/expenses/{expense}', [ExpenseController::class, 'show'])->middleware('api.permission:View:Expense');
+    Route::post('/expenses', [ExpenseController::class, 'store'])->middleware('api.permission:Create:Expense');
+    Route::patch('/expenses/{expense}', [ExpenseController::class, 'update'])->middleware('api.permission:Update:Expense');
+    Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->middleware('api.permission:Delete:Expense');
+    Route::delete('/expenses/{expense}/force', [ExpenseController::class, 'forceDelete'])->middleware('api.permission:Delete:Expense');
+    Route::post('/expenses/{expense}/restore', [ExpenseController::class, 'restore'])->middleware('api.permission:Update:Expense');
 });

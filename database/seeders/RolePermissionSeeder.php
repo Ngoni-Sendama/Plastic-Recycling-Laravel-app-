@@ -76,7 +76,7 @@ class RolePermissionSeeder extends Seeder
         $allResources = [
             'Buyer', 'Material', 'MaterialIntake', 'CrushingProduction', 'Dispatch',
             'PalletizingReceipt', 'PalletizingProduction', 'PelletSale',
-            'CashRemittance', 'SyncConflict', 'User', 'Role',
+            'CashRemittance', 'ExpenseCategory', 'Expense', 'SyncConflict', 'User', 'Role',
         ];
 
         $pages = [

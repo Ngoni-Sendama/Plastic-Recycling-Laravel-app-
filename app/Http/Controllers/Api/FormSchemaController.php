@@ -174,6 +174,25 @@ class FormSchemaController extends ApiController
                         'fromApi' => ['id' => 'id', 'date' => 'date', 'voucher_number' => 'voucherNo', 'period_covered' => 'period', 'chips_delivered_kg' => 'chipsKg', 'recovery_price_per_kg' => 'recoveryPrice', 'sales_revenue' => 'salesRevenue', 'cash_remitted' => 'cashRemitted', 'max_remittance_due' => 'maxDue', 'balance_retained' => 'balanceRetained', 'recorded_by' => 'recordedBy'],
                     ],
                 ],
+                'expenses' => [
+                    'title' => 'Expenses',
+                    'shortTitle' => 'Expenses',
+                    'endpoint' => '/expenses',
+                    'primary' => ['expenseNo'],
+                    'fields' => [
+                        ['name' => 'date', 'label' => 'Date', 'type' => 'date', 'required' => true],
+                        ['name' => 'expenseNo', 'label' => 'Expense no.', 'type' => 'text', 'required' => true],
+                        ['name' => 'categoryId', 'label' => 'Category', 'type' => 'select', 'required' => true, 'optionsEndpoint' => '/expense-categories'],
+                        ['name' => 'description', 'label' => 'Description', 'type' => 'text'],
+                        ['name' => 'amount', 'label' => 'Amount ($)', 'type' => 'number', 'step' => '0.01', 'required' => true],
+                        ['name' => 'paymentMethod', 'label' => 'Payment method', 'type' => 'select', 'options' => ['Cash', 'Bank Transfer', 'EcoCash', 'Card']],
+                    ],
+                    'computedFields' => [],
+                    'apiMapping' => [
+                        'toApi' => ['date' => 'date', 'expenseNo' => 'expense_number', 'categoryId' => 'expense_category_id', 'description' => 'description', 'amount' => 'amount', 'paymentMethod' => 'payment_method'],
+                        'fromApi' => ['id' => 'id', 'date' => 'date', 'expense_number' => 'expenseNo', 'expense_category_id' => 'categoryId', 'description' => 'description', 'amount' => 'amount', 'payment_method' => 'paymentMethod', 'recorded_by' => 'recordedBy'],
+                    ],
+                ],
             ],
         ]);
     }
