@@ -60,3 +60,22 @@ The edit screen opens with empty or default values instead of the existing remit
 - The recorded-by label shows the user name when the data exists.
 - The user can save changes without re-entering the record from scratch.
 
+## Resolution
+
+**Fixed:** Multiple issues resolved across form, details, and data flow.
+
+### Root Causes Found
+
+1. **Route param mismatch (primary bug):** Form expected `route.params?.editRecord` but details screen passed `{ record: item }`. The form always opened as "new" because `existing` was `null`.
+
+2. **Field name mismatch:** Form used camelCase names (`voucherNo`, `period`, `chipsKg`, etc.) but synced records from the API use snake_case (`voucher_number`, `period_covered`, `chips_delivered_kg`, etc.). The `fromApi` mapping transforms these, but the form's initial state only checked one convention.
+
+3. **recorded_by naming:** Details screen read `item.recorded_by` (snake_case) but locally-created records store it as `recordedBy` (camelCase via `fromApi` mapping).
+
+4. **Offline delete broken:** Details screen used `apiDelete` (direct HTTP) instead of `deleteRecord` (offline-capable).
+
+### Changes
+
+- **RemittanceFormScreen.js:** Accept both `editRecord` and `record` route params; check both camelCase and snake_case field names; add `useEffect` to re-sync state when `existing` changes; add DateTimePicker for date field; add keyboard auto-scroll
+- **RemittanceDetailsScreen.js:** Use `deleteRecord` instead of `apiDelete`; fix `recorded_by` fallback to check both `recorded_by` and `recordedBy`
+
