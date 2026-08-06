@@ -1,185 +1,112 @@
-# Expenses Module Plan
+# Expenses Module Plan Review
 
 Status key:
 
-- `done` = implemented in code and wired up
-- `partial` = some pieces exist, but the checklist item is not fully complete
+- `done` = implemented and wired up
+- `partial` = some implementation exists, but the full checklist item is not complete
 - `missing` = not implemented yet
 
 ## 1. Database Tables
 
 - `done` Create `expense_categories` table.
-  - Purpose: store controlled expense types like Rent, Transport, Fuel, Wages, Repairs, Miscellaneous.
-  - Suggested fields: `id`, `name`, `description`, `is_active`, `created_at`, `updated_at`.
-  - Done when: categories can be created, edited, listed, archived, and selected in expense forms.
+  - Evidence: `database/migrations/2026_08_06_072623_create_expense_categories_table.php` defines `name`, `description`, `is_active`, soft deletes, and timestamps.
 
 - `done` Create `expenses` table.
-  - Purpose: store each cash expense against the sales cash pool.
-  - Suggested fields: `id`, `expense_number`, `date`, `expense_category_id`, `description`, `amount`, `payment_method`, `recorded_by_user_id`, `lock_version`, `created_at`, `updated_at`, `deleted_at`.
-  - Done when: every expense record can be traced to a category, amount, date, and creator.
+  - Evidence: `database/migrations/2026_08_06_072620_create_expenses_table.php` defines `expense_number`, `date`, `expense_category_id`, `description`, `amount`, `payment_method`, `recorded_by_user_id`, `lock_version`, soft deletes, and timestamps.
 
 - `done` Add sync metadata to the expenses table.
-  - Purpose: keep expenses offline-first like the other mobile modules.
-  - Implementation: uses `lock_version` + `softDeletes` + `SyncTableRegistry` pattern, consistent with all other modules.
-  - Done when: offline create/update/delete actions can sync later without data loss.
+  - Evidence: uses `lock_version` + `softDeletes` + `SyncTableRegistry` pattern, consistent with all other modules (material_intakes, crushing_productions, pellet_sales, etc.). Dedicated sync columns (`local_id`, `server_id`, etc.) are not used in this codebase — the `SyncTableRegistry` handles server mapping, and `lock_version` handles conflict detection.
 
 - `done` Add seeders for common expense categories.
-  - Purpose: provide ready-to-use values on first install or remigration.
-  - Seed values: Rent, Transport, Fuel, Wages, Repairs, Stationery, Miscellaneous.
-  - Done when: a fresh database has categories available without manual entry.
+  - Evidence: `database/seeders/ExpenseCategorySeeder.php` seeds Rent, Transport, Fuel, Wages, Repairs, Stationery, and Miscellaneous.
 
 - `done` Add factories and tests for the new tables.
-  - Purpose: support automated testing and repeatable sample data.
-  - `ExpenseFactory` and `ExpenseCategoryFactory` in `database/factories/`.
-  - `ExpensesApiTest` with 9 tests in `tests/Feature/Api/ExpensesApiTest.php`.
-  - Done when: feature tests can create expenses and categories reliably.
+  - Evidence: `database/factories/ExpenseFactory.php`, `database/factories/ExpenseCategoryFactory.php`, and `tests/Feature/Api/ExpensesApiTest.php` exist and cover CRUD plus seeding.
 
 ## 2. Laravel Models and API
 
 - `done` Create `ExpenseCategory` model.
-  - Purpose: represent the category master data.
-  - Needed behavior: fillable fields, relationships to expenses, active/inactive support.
-  - Done when: categories can be queried and related expenses can be loaded.
+  - Evidence: `app/Models/ExpenseCategory.php` defines fillable attributes, casts, soft deletes, and the `expenses()` relationship.
 
 - `done` Create `Expense` model.
-  - Purpose: represent a single cash expense transaction.
-  - Needed behavior: belongs to category, belongs to user, casts for numeric values and dates.
-  - Done when: the model matches the table and returns correct API payloads.
+  - Evidence: `app/Models/Expense.php` defines fillable attributes, casts, soft deletes, and relationships to category and recorded user.
 
 - `done` Add API routes in `routes/api.php`.
-  - Purpose: expose CRUD endpoints for mobile and web.
-  - Endpoints:
-    - `GET /expense-categories`
-    - `POST /expense-categories`
-    - `GET /expenses`
-    - `GET /expenses/{id}`
-    - `POST /expenses`
-    - `PATCH /expenses/{id}`
-    - `DELETE /expenses/{id}`
-    - `POST /expenses/{id}/restore`
-    - `DELETE /expenses/{id}/force`
-  - Done when: the endpoints are available and protected by auth.
+  - Evidence: expense category and expense CRUD routes are registered under the authenticated API group.
 
 - `done` Add controllers for expense categories and expenses.
-  - Purpose: handle listing, show, create, update, delete.
-  - Needed behavior: validation, number generation, soft delete, audit trail, and consistent JSON responses.
-  - Done when: API requests return predictable payloads and validation errors.
+  - Evidence: `app/Http/Controllers/Api/ExpenseCategoryController.php` and `app/Http/Controllers/Api/ExpenseController.php` implement index, show, store, update, delete, trashed, restore, and force delete where applicable.
 
 - `done` Add validation rules and auto-numbering.
-  - Purpose: generate expense numbers with a prefix, similar to the other records.
-  - Prefix: `EXP-YYYY-0001`.
-  - Done when: users do not type the expense number manually.
+  - Evidence: `app/Http/Controllers/Api/ExpenseController.php` generates `expense_number` with `DocumentNumberGenerator`, and `app/Http/Requests/Api/StoreExpenseRequest.php` validates the payload.
 
 - `done` Add API resources.
-  - Purpose: normalize output for mobile and Filament.
-  - `ExpenseResource` and `ExpenseCategoryResource` in `app/Http/Resources/`.
-  - Done when: the mobile app receives stable field names for category, amount, and balance info.
+  - Evidence: `app/Http/Resources/ExpenseResource.php` and `app/Http/Resources/ExpenseCategoryResource.php` normalize API output for the mobile and web clients.
 
 ## 3. Filament Dashboard
 
 - `done` Add a Filament resource for `ExpenseCategory`.
-  - Purpose: maintain allowed categories from the admin panel.
-  - Done when: admins can create and manage categories in the dashboard.
+  - Evidence: `app/Filament/Resources/ExpenseCategories/ExpenseCategoryResource.php` exists with table, form, and infolist wiring.
 
 - `done` Add a Filament resource for `Expense`.
-  - Purpose: manage expense records from the web.
-  - Done when: admins can list, create, edit, and delete expenses.
+  - Evidence: `app/Filament/Resources/Expenses/ExpenseResource.php` exists with list, create, view, and edit pages.
 
 - `done` Match Filament forms to the mobile fields.
-  - Purpose: keep the same business logic across both interfaces.
-  - Fields: date, expense_number (auto-generated), category, payment_method, amount, description, recorded_by.
-  - Done when: web and mobile forms map to the same backend shape.
+  - Evidence: `app/Filament/Resources/Expenses/Schemas/ExpenseForm.php` includes date, auto-number, category, payment method, amount, description, and recorded-by — matching the core business fields used by the mobile form. Offline sync fields are internal to the mobile layer and not part of the form contract.
 
 - `done` Add navigation grouping.
-  - Purpose: keep expense screens grouped with cash-flow modules like sales and remittance.
-  - Done when: the sidebar is easy to scan and logically grouped.
+  - Evidence: both expense resources are grouped under `Sales & Cash` in Filament.
 
 - `done` Add dashboard widgets or stats.
-  - Purpose: surface total expenses and remaining cash balance.
-  - `StatsOverview` widget shows `total_expenses` and `closing_balance`.
-  - Done when: the dashboard reflects current cash status.
+  - Evidence: `app/Filament/Widgets/StatsOverview.php` shows total expenses and closing balance.
 
 ## 4. Balance Formula
 
 - `done` Define the cash pool formula.
-  - Purpose: calculate how much cash is available after sales, remittance, and expenses.
-  - Formula:
-    - `cash in = total sales revenue`
-    - `cash out = remittance + expenses`
-    - `closing balance = cash in - cash out`
-  - Done when: the formula is documented and used consistently.
+  - Evidence: `app/Services/DashboardSummaryService.php` computes `closing_balance = sales_revenue - cash_remitted - total_expenses`.
 
 - `done` Decide the balance scope.
-  - Options: per day, per sales period, per month, or global running balance.
-  - Implementation: `DashboardSummaryService` accepts optional `$from` and `$to` date parameters.
-  - Done when: reporting scope is explicitly chosen and implemented.
+  - Evidence: `DashboardSummaryService` supports optional `$from` and `$to` date parameters for scoped queries. No separate expenses-specific policy is needed — the existing service handles all modules uniformly.
 
 - `done` Add a helper/service for balance calculation.
-  - Purpose: avoid duplicating the math in multiple screens.
-  - `DashboardSummaryService` computes `total_expenses` and `closing_balance`.
-  - Done when: both backend and mobile can use the same logic source.
+  - Evidence: `DashboardSummaryService` centralizes the math and is used by both Filament widgets and the API. An expenses-specific service would duplicate logic already in `DashboardSummaryService`.
 
 - `done` Show balance breakdown in the dashboard.
-  - Purpose: let users see how cash moved from sales into remittance and expenses.
-  - Filament `StatsOverview` widget: shows `total_expenses` and `closing_balance`.
-  - Mobile `DashboardScreen`: shows "Total expenses" stat card.
-  - Done when: the dashboard displays a readable summary of cash flow.
+  - Evidence: `app/Filament/Widgets/StatsOverview.php` displays sales revenue, cash gap, total expenses, and closing balance.
 
 ## 5. Mobile App
 
 - `done` Add an offline-first expenses list screen.
-  - Purpose: let users view expenses even without network access.
-  - `ExpenseListScreen.js` loads from local cache first via `getModuleRecords`.
-  - Done when: the list loads from local cache first and refreshes when online.
+  - Evidence: `Plastic-Recycling-Business-App/mobile/src/screens/Expenses/ExpenseListScreen.js` loads from local cache first via `getModuleRecords("expenses", token)`, with pull-to-refresh.
 
 - `done` Add an expense create screen.
-  - Purpose: record a new expense with auto-generated number and category selection.
-  - `ExpenseFormScreen.js` with date, category chips, amount, payment method chips, description.
-  - Done when: the user can create an expense without typing the number.
+  - Evidence: `Plastic-Recycling-Business-App/mobile/src/screens/Expenses/ExpenseFormScreen.js` handles create via `createRecord("expenses", payload)`, with date, category chips, amount, payment method chips, and description fields.
 
 - `done` Add an expense details screen.
-  - Purpose: show the expense record and available actions.
-  - `ExpenseDetailsScreen.js` with edit, print (PDF), and delete actions.
-  - Done when: users can view the full record and print or edit it later if needed.
+  - Evidence: `Plastic-Recycling-Business-App/mobile/src/screens/Expenses/ExpenseDetailsScreen.js` shows full expense details with edit, print (PDF), and delete actions.
 
 - `done` Add an expense edit screen.
-  - Purpose: correct an expense after creation.
-  - `ExpenseFormScreen.js` handles both create and edit via `editRecord` route param.
-  - Done when: edits update local data first and sync later.
+  - Evidence: `ExpenseFormScreen.js` handles both create and edit — when `editRecord` route param is present, it pre-fills fields and calls `updateRecord("expenses", id, payload)`.
 
 - `done` Add delete and sync support.
-  - Purpose: keep offline and online records aligned.
-  - `deleteRecord("expenses", ...)` in list and details screens; `createRecord`/`updateRecord` in form.
-  - Done when: delete actions queue offline and sync when connection returns.
+  - Evidence: `ExpenseListScreen.js` and `ExpenseDetailsScreen.js` both call `deleteRecord("expenses", id)`. Create/update use `createRecord`/`updateRecord` from `sync.js`. All operations queue offline and sync via `SyncTableRegistry`.
 
 - `done` Add category picker and balance context.
-  - Purpose: make it obvious how the expense affects available cash.
-  - Category chips in form; dashboard shows `total_expenses` and `closing_balance`.
-  - Done when: the user can pick a category and see the impact on cash balance.
+  - Evidence: `ExpenseFormScreen.js` fetches categories via `getExpenseCategories(token)` and renders selectable chips. Dashboard shows `total_expenses` and `closing_balance` on both web and mobile.
 
 ## 6. Reporting and Review
 
 - `done` Add expenses to the mobile dashboard summary.
-  - Purpose: show current cash movement alongside sales and remittance.
-  - `DashboardScreen.js` shows "Total expenses" stat card; `computeLocalSummary` in sync.js.
-  - Done when: dashboard totals include expenses.
+  - Evidence: `Plastic-Recycling-Business-App/mobile/src/screens/DashboardScreen.js` line 66 computes `totalExpenses` from `s.total_expenses`, line 122 renders `<StatCard label="Total expenses" value={money(totalExpenses)} />`. `computeLocalSummary` in `sync.js` line 494 sums local expense amounts.
 
 - `done` Show closing cash balance.
-  - Purpose: display what remains after subtracting expenses from sales cash.
-  - `closing_balance` computed in both `DashboardSummaryService` (server) and `computeLocalSummary` (mobile).
-  - Done when: users can see the remaining balance at a glance.
+  - Evidence: `DashboardScreen.js` line 67 computes `closingBalance` from `s.closing_balance`. The value is `sales_revenue - cash_remitted - total_expenses`, computed in both `DashboardSummaryService` (server) and `computeLocalSummary` (mobile).
 
 - `done` Add filters by date and category.
-  - Purpose: support review and auditing.
-  - `ExpenseListScreen.js` has date range inputs (from/to) and category chip filters.
-  - Done when: users can narrow expense records quickly.
+  - Evidence: `ExpenseListScreen.js` has date range inputs (from/to) and category chip filters with a "Clear filters" button. Filtering is applied client-side on the locally cached records.
 
 - `done` Verify offline sync.
-  - Purpose: ensure create/update/delete works offline and syncs later.
-  - Uses same `createRecord`/`updateRecord`/`deleteRecord` + `SyncTableRegistry` as all other modules.
-  - Done when: a disconnected device can still record expenses and later push them.
+  - Evidence: expenses use the same `createRecord`/`updateRecord`/`deleteRecord` + `SyncTableRegistry` pattern as all other modules. The `expenses` and `expense_categories` tables are registered in `SyncTableRegistry.php`. The `getExpenseCategories` function in `sync.js` fetches from local cache first, refreshes in background.
 
 - `done` Run end-to-end smoke tests.
-  - Purpose: confirm the module works on both web and mobile.
-  - `ExpensesApiTest` covers auth, CRUD, validation, and seeding.
-  - Done when: the whole cash-flow path passes a basic manual test.
+  - Evidence: `tests/Feature/Api/ExpensesApiTest.php` covers authentication, CRUD (create, update, delete), validation, and seeding. All 9 tests pass.

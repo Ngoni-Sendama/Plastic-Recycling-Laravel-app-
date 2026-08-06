@@ -60,7 +60,7 @@ The issue is not limited to one screen. It affects the shared mobile form layout
 
 ## Resolution
 
-**Fixed:** All 10 form screens now use a standardized keyboard avoidance pattern:
+**Partial:** All 10 form screens are intended to use a standardized keyboard avoidance pattern, but the fix still needs code-level verification and consistency checks:
 
 ```jsx
 <KeyboardAvoidingView style={styles.container} behavior="padding" keyboardVerticalOffset={100}>
@@ -88,4 +88,3 @@ The issue is not limited to one screen. It affects the shared mobile form layout
 - **`keyboardShouldPersistTaps="handled"`** prevents keyboard dismiss when tapping buttons
 - **`paddingBottom: 160`** ensures the save button is always reachable above the keyboard
 - Removed unused `Platform` imports from 4 screens
-
