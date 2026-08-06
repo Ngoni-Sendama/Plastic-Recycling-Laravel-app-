@@ -58,3 +58,34 @@ The issue is not limited to one screen. It affects the shared mobile form layout
 - Lower inputs and save buttons are visible while typing.
 - The behavior is consistent across all create/edit screens.
 
+## Resolution
+
+**Fixed:** All 10 form screens now use a standardized keyboard avoidance pattern:
+
+```jsx
+<KeyboardAvoidingView style={styles.container} behavior="padding" keyboardVerticalOffset={100}>
+  <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 160 }} keyboardShouldPersistTaps="handled">
+```
+
+### Changes per screen
+
+| Screen | Before | After |
+|--------|--------|-------|
+| `MaterialFormScreen.js` | No KAV at all | Added full KAV wrapping |
+| `BuyerFormScreen.js` | No KAV at all | Added full KAV wrapping |
+| `SalesFormScreen.js` | `behavior` conditional on iOS only | `behavior="padding"` for both platforms |
+| `DispatchFormScreen.js` | `behavior` conditional on iOS only | `behavior="padding"` for both platforms |
+| `ReceiptFormScreen.js` | `behavior` conditional on iOS only | `behavior="padding"` for both platforms |
+| `ExpenseFormScreen.js` | `behavior` conditional on iOS only | `behavior="padding"` for both platforms |
+| `CrushingFormScreen.js` | `behavior` conditional on iOS only | `behavior="padding"` for both platforms |
+| `PalletizingProductionFormScreen.js` | `behavior` conditional on iOS only | `behavior="padding"` for both platforms |
+| `RemittanceFormScreen.js` | `behavior` conditional on iOS only | `behavior="padding"` for both platforms |
+| `MaterialIntakeFormScreen.js` | Already correct | Updated `paddingBottom` to 160 for consistency |
+
+### Key changes
+- **`behavior="padding"`** works reliably on both iOS and Android (not just iOS)
+- **`keyboardVerticalOffset={100}`** accounts for the navigation header height
+- **`keyboardShouldPersistTaps="handled"`** prevents keyboard dismiss when tapping buttons
+- **`paddingBottom: 160`** ensures the save button is always reachable above the keyboard
+- Removed unused `Platform` imports from 4 screens
+

@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\CrushingProductions\Schemas;
 
 use App\Models\CrushingProduction;
-use App\Services\DocumentNumberGenerator;
 use App\Services\CrushingProductionCalculator;
+use App\Services\DocumentNumberGenerator;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -26,7 +26,7 @@ class CrushingProductionForm
                             ->default(today())
                             ->required(),
                         TextInput::make('batch_number')
-                            ->default(fn (): string => DocumentNumberGenerator::generate(new CrushingProduction(), 'batch_number', 'CR-BATCH', today()))
+                            ->default(fn (): string => DocumentNumberGenerator::generate(new CrushingProduction, 'batch_number', 'CR-BATCH', today()))
                             ->placeholder('CR-BATCH-2026-0001')
                             ->helperText('Automatically generated with prefix CR-BATCH-YYYY-####.')
                             ->disabled()
@@ -74,7 +74,10 @@ class CrushingProductionForm
                             ->disabled()
                             ->dehydrated(),
                         TextInput::make('loss_percentage')
-                            ->placeholder('Generated as a ratio')
+                            ->placeholder('Generated as a percentage')
+                            ->suffix('%')
+                            ->formatStateUsing(fn ($state): ?string => $state === null || $state === '' ? null : number_format(((float) $state) * 100, 2))
+                            ->dehydrateStateUsing(fn ($state): ?float => $state === null || $state === '' ? null : ((float) $state) / 100)
                             ->required()
                             ->numeric()
                             ->disabled()

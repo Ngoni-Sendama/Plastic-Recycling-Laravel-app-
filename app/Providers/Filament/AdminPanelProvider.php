@@ -35,10 +35,11 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->favicon(asset('icon.png'))
             ->brandLogo(asset('icon.png'))
-                  ->brandLogoHeight('3rem')
+            ->brandLogoHeight('3rem')
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->databaseNotifications()
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->plugins([
                 FilamentEditProfilePlugin::make()

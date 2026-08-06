@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Buyers\Tables;
 
+use App\Filament\Exports\BuyerExporter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ExportAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
@@ -31,6 +33,10 @@ class BuyersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(BuyerExporter::class),
             ])
             ->filters([
                 TrashedFilter::make(),
