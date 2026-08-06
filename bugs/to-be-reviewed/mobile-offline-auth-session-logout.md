@@ -69,4 +69,3 @@ all produce the same result: the saved session is deleted.
 - This is a blocker for full offline support.
 - The current behavior is technically a “server-verified session” flow, not offline auth.
 - Once this is fixed, the rest of the offline-first sync model can behave consistently.
-

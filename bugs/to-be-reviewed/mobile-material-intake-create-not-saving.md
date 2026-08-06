@@ -64,4 +64,3 @@ The user can fill in the form, but after submit the record does not appear to pe
 - The record syncs successfully when online.
 - The user sees a success message and the new record appears in the list.
 - Failures show a clear validation or sync error instead of silently not saving.
-

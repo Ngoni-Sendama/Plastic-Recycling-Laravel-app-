@@ -43,4 +43,3 @@ This allows invalid manual date entry and makes both forms harder to use on mobi
 - Remittance create/edit uses a date picker.
 - Both screens submit valid date strings only.
 - No manual date typing is required for normal use.
-

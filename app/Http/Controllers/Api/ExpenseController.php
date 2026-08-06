@@ -62,7 +62,9 @@ class ExpenseController extends ApiController
 
     public function trashed(): AnonymousResourceCollection
     {
-        return ExpenseResource::collection(Expense::onlyTrashed()->with(['category'])->latest('date')->get());
+        return ExpenseResource::collection(
+            Expense::onlyTrashed()->with(['category', 'recordedByUser'])->latest('date')->get(),
+        );
     }
 
     public function restore(Expense $expense): JsonResponse

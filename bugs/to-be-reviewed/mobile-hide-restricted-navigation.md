@@ -62,4 +62,3 @@ There are two layers involved:
 - The current drawer already hides `Manage users` via `adminOnly`.
 - This bug is broader than that single item: all restricted mobile navigation should be hidden by role/permission.
 - If the app later adds more roles, the permission map should be expanded in one place rather than scattered across screens.
-

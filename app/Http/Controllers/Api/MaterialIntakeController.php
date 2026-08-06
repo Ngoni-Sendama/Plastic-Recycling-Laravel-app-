@@ -47,6 +47,7 @@ class MaterialIntakeController extends ApiController
                 'net_weight_kg' => $calculated['net_weight_kg'],
                 'total_value' => $calculated['total_value'],
             ]);
+            $deleted->load(['buyer', 'material', 'recordedByUser']);
 
             return response()->json([
                 'message' => 'This record was previously deleted and has been restored.',
@@ -70,6 +71,7 @@ class MaterialIntakeController extends ApiController
             'total_value' => $calculated['total_value'],
             'recorded_by_user_id' => $request->user()->id,
         ]);
+        $intake->load(['buyer', 'material', 'recordedByUser']);
 
         return response()->json([
             'message' => 'Record created successfully.',
@@ -95,6 +97,7 @@ class MaterialIntakeController extends ApiController
             'unit_price' => $data['unit_price'],
             'total_value' => $calculated['total_value'],
         ]);
+        $materialIntake->load(['buyer', 'material', 'recordedByUser']);
 
         return new MaterialIntakeResource($materialIntake);
     }
@@ -115,7 +118,9 @@ class MaterialIntakeController extends ApiController
 
     public function trashed(): AnonymousResourceCollection
     {
-        return MaterialIntakeResource::collection(MaterialIntake::onlyTrashed()->latest('date')->get());
+        return MaterialIntakeResource::collection(
+            MaterialIntake::onlyTrashed()->with(['buyer', 'material', 'recordedByUser'])->latest('date')->get(),
+        );
     }
 
     public function forceDelete(MaterialIntake $materialIntake): JsonResponse

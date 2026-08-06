@@ -50,4 +50,3 @@ The edit screen opens with empty or default values instead of the existing recei
 - Opening Receipt edit from list/details preloads the selected record.
 - No blank edit form appears for an existing receipt.
 - The user can change and save the existing values without re-entering the whole record.
-

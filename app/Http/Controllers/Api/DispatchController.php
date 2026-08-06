@@ -39,6 +39,7 @@ class DispatchController extends ApiController
                 'weight_dispatched_kg' => $data['weight_dispatched_kg'],
                 'transported_by' => $data['transported_by'] ?? null,
             ]);
+            $deleted->load(['material', 'recordedByUser']);
 
             return response()->json([
                 'message' => 'This record was previously deleted and has been restored.',
@@ -56,6 +57,7 @@ class DispatchController extends ApiController
             'transported_by' => $data['transported_by'] ?? null,
             'recorded_by_user_id' => $request->user()->id,
         ]);
+        $dispatch->load(['material', 'recordedByUser']);
 
         return response()->json([
             'message' => 'Record created successfully.',
@@ -76,6 +78,7 @@ class DispatchController extends ApiController
             'weight_dispatched_kg' => $data['weight_dispatched_kg'],
             'transported_by' => $data['transported_by'] ?? null,
         ]);
+        $dispatch->load(['material', 'recordedByUser']);
 
         return new DispatchResource($dispatch);
     }
@@ -96,7 +99,9 @@ class DispatchController extends ApiController
 
     public function trashed(): AnonymousResourceCollection
     {
-        return DispatchResource::collection(Dispatch::onlyTrashed()->latest('date')->get());
+        return DispatchResource::collection(
+            Dispatch::onlyTrashed()->with(['material', 'recordedByUser'])->latest('date')->get(),
+        );
     }
 
     public function forceDelete(Dispatch $dispatch): JsonResponse

@@ -43,6 +43,7 @@ class CashRemittanceController extends ApiController
                 'max_remittance_due' => $calculated['max_remittance_due'],
                 'balance_retained' => $calculated['balance_retained'],
             ]);
+            $deleted->load(['recordedByUser']);
 
             return response()->json([
                 'message' => 'This record was previously deleted and has been restored.',
@@ -64,6 +65,7 @@ class CashRemittanceController extends ApiController
             'balance_retained' => $calculated['balance_retained'],
             'recorded_by_user_id' => $request->user()->id,
         ]);
+        $remittance->load(['recordedByUser']);
 
         return response()->json([
             'message' => 'Record created successfully.',
@@ -87,6 +89,7 @@ class CashRemittanceController extends ApiController
             'max_remittance_due' => $calculated['max_remittance_due'],
             'balance_retained' => $calculated['balance_retained'],
         ]);
+        $cashRemittance->load(['recordedByUser']);
 
         return new CashRemittanceResource($cashRemittance);
     }
@@ -107,7 +110,9 @@ class CashRemittanceController extends ApiController
 
     public function trashed(): AnonymousResourceCollection
     {
-        return CashRemittanceResource::collection(CashRemittance::onlyTrashed()->latest('date')->get());
+        return CashRemittanceResource::collection(
+            CashRemittance::onlyTrashed()->with(['recordedByUser'])->latest('date')->get(),
+        );
     }
 
     public function forceDelete(CashRemittance $cashRemittance): JsonResponse

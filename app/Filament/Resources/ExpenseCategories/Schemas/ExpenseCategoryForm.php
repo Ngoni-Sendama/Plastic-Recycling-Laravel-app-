@@ -28,6 +28,7 @@ class ExpenseCategoryForm
                             ->label('Active')
                             ->default(true),
                     ])
+                    ->columnSpanFull()
                     ->columns(1),
             ]);
     }

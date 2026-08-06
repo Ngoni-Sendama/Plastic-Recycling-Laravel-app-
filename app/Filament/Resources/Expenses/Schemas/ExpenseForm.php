@@ -33,8 +33,7 @@ class ExpenseForm
                             ->relationship('category', 'name')
                             ->searchable()
                             ->preload()
-                            ->required()
-                            ->activeRecord(),
+                            ->required(),
                         Select::make('payment_method')
                             ->options([
                                 'Cash' => 'Cash',
@@ -57,6 +56,7 @@ class ExpenseForm
                             ->preload()
                             ->default(fn (): ?int => auth()->id()),
                     ])
+                    ->columnSpanFull()
                     ->columns(2),
             ]);
     }

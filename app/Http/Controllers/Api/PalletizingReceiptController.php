@@ -42,6 +42,7 @@ class PalletizingReceiptController extends ApiController
                 'rate_per_kg' => $data['rate_per_kg'],
                 'amount_payable' => $calculated['amount_payable'],
             ]);
+            $deleted->load(['material', 'recordedByUser']);
 
             return response()->json([
                 'message' => 'This record was previously deleted and has been restored.',
@@ -62,6 +63,7 @@ class PalletizingReceiptController extends ApiController
             'amount_payable' => $calculated['amount_payable'],
             'recorded_by_user_id' => $request->user()->id,
         ]);
+        $receipt->load(['material', 'recordedByUser']);
 
         return response()->json([
             'message' => 'Record created successfully.',
@@ -84,6 +86,7 @@ class PalletizingReceiptController extends ApiController
             'rate_per_kg' => $data['rate_per_kg'],
             'amount_payable' => $calculated['amount_payable'],
         ]);
+        $palletizingReceipt->load(['material', 'recordedByUser']);
 
         return new PalletizingReceiptResource($palletizingReceipt);
     }
@@ -104,7 +107,9 @@ class PalletizingReceiptController extends ApiController
 
     public function trashed(): AnonymousResourceCollection
     {
-        return PalletizingReceiptResource::collection(PalletizingReceipt::onlyTrashed()->latest('date')->get());
+        return PalletizingReceiptResource::collection(
+            PalletizingReceipt::onlyTrashed()->with(['material', 'recordedByUser'])->latest('date')->get(),
+        );
     }
 
     public function forceDelete(PalletizingReceipt $palletizingReceipt): JsonResponse

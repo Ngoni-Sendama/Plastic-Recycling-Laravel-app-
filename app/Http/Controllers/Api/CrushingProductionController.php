@@ -44,6 +44,7 @@ class CrushingProductionController extends ApiController
                 'loss_kg' => $calculated['loss_kg'],
                 'loss_percentage' => $calculated['loss_percentage'],
             ]);
+            $deleted->load(['material', 'recordedByUser']);
 
             return response()->json([
                 'message' => 'This record was previously deleted and has been restored.',
@@ -65,6 +66,7 @@ class CrushingProductionController extends ApiController
             'loss_percentage' => $calculated['loss_percentage'],
             'recorded_by_user_id' => $request->user()->id,
         ]);
+        $production->load(['material', 'recordedByUser']);
 
         return response()->json([
             'message' => 'Record created successfully.',
@@ -87,6 +89,7 @@ class CrushingProductionController extends ApiController
             'loss_kg' => $calculated['loss_kg'],
             'loss_percentage' => $calculated['loss_percentage'],
         ]);
+        $crushingProduction->load(['material', 'recordedByUser']);
 
         return new CrushingProductionResource($crushingProduction);
     }
@@ -107,7 +110,9 @@ class CrushingProductionController extends ApiController
 
     public function trashed(): AnonymousResourceCollection
     {
-        return CrushingProductionResource::collection(CrushingProduction::onlyTrashed()->latest('date')->get());
+        return CrushingProductionResource::collection(
+            CrushingProduction::onlyTrashed()->with(['material', 'recordedByUser'])->latest('date')->get(),
+        );
     }
 
     public function forceDelete(CrushingProduction $crushingProduction): JsonResponse
