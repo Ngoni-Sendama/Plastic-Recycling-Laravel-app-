@@ -53,3 +53,15 @@ The same issue also appears on:
 - The behavior is consistent online and offline.
 - Edit screens show the selected material correctly.
 - Print output shows the material consistently.
+
+## Resolution
+
+**Fixed:** Corrected material display fallback chain in list, details, and print template.
+
+The `CrushingProductionResource` returns `material` as a **string** (the code like `"PP"`), not an object. The UI was trying `item.material?.code` first, which fails on a string (strings don't have a `.code` property).
+
+### Changes
+- `CrushingListScreen.js` line 96: uses `typeof item.material === "string" ? item.material : item.material?.code` to handle both string and object cases
+- `CrushingDetailsScreen.js` line 65 (print template): same fix
+- `CrushingDetailsScreen.js` line 110 (detail row): same fix
+- Fallback chain: `material (string) || material?.code (object) || material_code (local) || "-"`

@@ -41,4 +41,3 @@ This allows manual date typing and makes the form less consistent with the rest 
 - Sales create/edit uses a date picker.
 - Sales save valid date strings only.
 - No manual date typing is required for the date field.
-

@@ -20,6 +20,7 @@ class CrushingProductionResource extends JsonResource
             'grn_reference' => $this->grn_reference,
             'material_id' => $this->material_id,
             'material' => $this->whenLoaded('material', fn () => $this->material->code),
+            'material_code' => $this->whenLoaded('material', fn () => $this->material->code),
             'input_weight_kg' => (float) $this->input_weight_kg,
             'output_chips_kg' => (float) $this->output_chips_kg,
             'loss_kg' => (float) $this->loss_kg,

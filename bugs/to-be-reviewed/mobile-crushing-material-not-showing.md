@@ -48,4 +48,3 @@ Instead of the chosen material, the UI still displays a dash or `–` symbol in 
 - Creating or editing a Crushing Production record shows the selected material after save.
 - No dash placeholder appears when a material exists.
 - The same result works both online and offline after sync.
-

@@ -50,4 +50,3 @@ Instead of failing gracefully, the app exits or becomes unstable when Bluetooth 
 - Unsupported runtimes show a clear error message.
 - Native/dev builds still allow Bluetooth printing when a printer is paired.
 - The Sales details screen remains stable even if printing fails.
-
