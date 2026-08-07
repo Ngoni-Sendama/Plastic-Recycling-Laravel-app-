@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 
 class QzTrayController
 {
-    public function certificate(QzTraySigner $signer): string
+    public function certificate(QzTraySigner $signer): JsonResponse
     {
-        return $signer->certificate();
+        return response()->json([
+            'data' => $signer->certificate(),
+        ]);
     }
 
     public function sign(Request $request, QzTraySigner $signer): JsonResponse
