@@ -20,7 +20,7 @@ class ListDispatches extends ListRecords
         ];
     }
 
-     public function getTabs(): array
+    public function getTabs(): array
     {
         $tabs = [
             'all' => Tab::make('All'),
