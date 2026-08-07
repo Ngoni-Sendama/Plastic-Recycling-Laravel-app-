@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\PrinterSettings;
 
 use App\Filament\Resources\PrinterSettings\Pages\CreatePrinterSetting;
-use App\Filament\Resources\PrinterSettings\Pages\EditPrinterSetting;
 use App\Filament\Resources\PrinterSettings\Pages\ListPrinterSettings;
+use App\Filament\Resources\PrinterSettings\Pages\ViewPrinterSetting;
 use App\Filament\Resources\PrinterSettings\Schemas\PrinterSettingForm;
 use App\Filament\Resources\PrinterSettings\Tables\PrinterSettingsTable;
 use App\Models\PrinterSetting;
@@ -51,7 +51,7 @@ class PrinterSettingResource extends Resource
         return [
             'index' => ListPrinterSettings::route('/'),
             'create' => CreatePrinterSetting::route('/create'),
-            'edit' => EditPrinterSetting::route('/{record}/edit'),
+            'view' => ViewPrinterSetting::route('/{record}'),
         ];
     }
 

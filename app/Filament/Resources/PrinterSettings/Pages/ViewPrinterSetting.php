@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\PrinterSettings\Pages;
 
 use App\Filament\Resources\PrinterSettings\PrinterSettingResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditPrinterSetting extends EditRecord
+class ViewPrinterSetting extends ViewRecord
 {
     protected static string $resource = PrinterSettingResource::class;
 
