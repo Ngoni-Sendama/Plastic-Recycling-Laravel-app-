@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PrinterSettings\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
@@ -32,6 +33,12 @@ class PrinterSettingsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                Action::make('thermalPrint')
+                    ->label('Test Thermal Printer')
+                    ->icon('heroicon-m-printer')
+                    ->color('info')
+                    ->url(fn (): string => route('web.thermal-test-print'))
+                    ->openUrlInNewTab(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
