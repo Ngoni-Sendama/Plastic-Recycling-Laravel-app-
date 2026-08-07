@@ -25,33 +25,42 @@
             const status = document.getElementById('status');
             const printerName = @json($printerName);
 
-            const print = async () => {
+            const ESC = '\x1B';
+            const LF = '\x0A';
+
+            const connectAndPrint = async () => {
                 try {
                     await qz.websocket.connect();
 
-                    const printer = printerName
-                        ? await qz.printers.find(printerName)
-                        : await qz.printers.find();
-
+                    const preferredName = (printerName || '').trim();
+                    const printer = preferredName ? await qz.printers.find(preferredName) : await qz.printers.find();
                     const config = qz.configs.create(printer);
 
-                    const data = [{
-                        type: 'pixel',
-                        format: 'html',
-                        flavor: 'plain',
-                        data: `
-                            <div style="font-family: monospace; width: 300px; padding: 10px;">
-                                <h2 style="text-align: center; margin: 0;">Highglen Plastic Industries</h2>
-                                <hr style="border: 1px dashed #000;">
-                                <p style="text-align: center; margin: 5px 0;"><strong>TEST PRINT</strong></p>
-                                <p>Date: ${new Date().toLocaleDateString()}</p>
-                                <p>Time: ${new Date().toLocaleTimeString()}</p>
-                                <p>Printer: ${printer}</p>
-                                <hr style="border: 1px dashed #000;">
-                                <p style="text-align: center; font-size: 12px;">If you can read this,<br>your printer is working!</p>
-                            </div>
-                        `,
-                    }];
+                    const data = [
+                        ESC + '\x40',
+                        ESC + '\x61' + '\x31',
+                        ESC + '\x45' + '\x0D',
+                        'Highglen Plastic Industries' + LF,
+                        ESC + '\x45' + '\x0A',
+                        'TEST RECEIPT' + LF,
+                        '--------------------------------' + LF,
+                        ESC + '\x61' + '\x30',
+                        'Date: 07-Aug-2026' + LF,
+                        'Time: 14:30' + LF,
+                        'GRN No.: GRN-00123' + LF,
+                        'Buyer: Acme Plastics' + LF,
+                        'Material: PP - Polypropylene' + LF,
+                        'Gross Wt: 1170.000 kg' + LF,
+                        'Tare Wt: 5.000 kg' + LF,
+                        'Net Wt: 1165.000 kg' + LF,
+                        'Unit Price: $0.42' + LF,
+                        'Total Value: $489.30' + LF,
+                        '--------------------------------' + LF,
+                        ESC + '\x61' + '\x31',
+                        'Thank you' + LF,
+                        LF + LF + LF,
+                        ESC + '\x69',
+                    ];
 
                     await qz.print(config, data);
 
@@ -64,7 +73,7 @@
                 }
             };
 
-            window.addEventListener('load', print);
+            window.addEventListener('load', connectAndPrint);
         })();
     </script>
 </body>
