@@ -58,6 +58,10 @@
                         '--------------------------------' + LF,
                         ESC + '\x61' + '\x31',
                         'Thank you' + LF,
+                        ESC + '\x61' + '\x31',
+                        'Done by MCSolutions Zim' + LF,
+                        ESC + '\x61' + '\x31',
+                        'mcsolutionszim.co.zw' + LF,
                         LF + LF + LF,
                         ESC + '\x69',
                     ];

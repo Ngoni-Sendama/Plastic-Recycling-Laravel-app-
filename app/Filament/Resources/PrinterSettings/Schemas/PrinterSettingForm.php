@@ -19,9 +19,8 @@ class PrinterSettingForm
                         Hidden::make('user_id'),
                         TextInput::make('printer_name')
                             ->label('Printer name')
-                            ->helperText('Auto-filled from QZ Tray, or edit if you need to switch devices.')
-                            ->required()
-                            ->maxLength(255),
+                            ->helperText('Auto-filled from QZ Tray.')
+                            ->required(),
                     ]),
             ]);
     }
