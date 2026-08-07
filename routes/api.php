@@ -64,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reports/production', [ReportController::class, 'production'])->middleware('api.permission:View:ProductionSummary');
     Route::get('/reports/sales', [ReportController::class, 'sales'])->middleware('api.permission:View:SalesSummary');
     Route::get('/reports/cash-reconciliation', [ReportController::class, 'cashReconciliation'])->middleware('api.permission:View:CashReconciliation');
+    Route::get('/reports/cash-flow', [ReportController::class, 'cashFlow'])->middleware('api.permission:View:CashFlow');
     Route::get('/audit-logs', [AuditLogController::class, 'index']);
 
     Route::get('/sync/pull', [SyncController::class, 'pull']);

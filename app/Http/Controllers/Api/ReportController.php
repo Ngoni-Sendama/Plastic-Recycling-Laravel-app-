@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\CashFlowReportService;
 use App\Services\ReportSummaryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -40,6 +41,21 @@ class ReportController extends Controller
             $request,
             fn (ReportSummaryService $service, ?Carbon $from, ?Carbon $to): array => $service->cashReconciliation($from, $to)
         );
+    }
+
+    public function cashFlow(Request $request): JsonResponse
+    {
+        $request->validate([
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date'],
+        ]);
+
+        $from = $request->filled('from') ? Carbon::parse($request->string('from')->toString()) : null;
+        $to = $request->filled('to') ? Carbon::parse($request->string('to')->toString()) : null;
+
+        return response()->json([
+            'data' => app(CashFlowReportService::class)->report($from, $to),
+        ]);
     }
 
     /**

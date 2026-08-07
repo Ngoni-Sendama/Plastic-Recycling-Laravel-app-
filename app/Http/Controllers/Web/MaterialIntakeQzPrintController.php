@@ -4,18 +4,30 @@ namespace App\Http\Controllers\Web;
 
 use App\Models\MaterialIntake;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MaterialIntakeQzPrintController
 {
     public function __invoke(MaterialIntake $materialIntake): View
     {
         $materialIntake->load(['material', 'buyer', 'recordedByUser']);
+        $user = Auth::user();
+        $user?->loadMissing('printerSetting');
+
+        $printerName = $user?->printerSetting?->printer_name;
+        Log::info('Material intake QZ print payload resolved.', [
+            'user_id' => $user?->id,
+            'material_intake_id' => $materialIntake->id,
+            'printer_name' => $printerName,
+        ]);
 
         return view('web.qz-tray.material-intake', [
             'intake' => $materialIntake,
             'payload' => [
                 'title' => 'Material Intake',
                 'company' => 'Highglen Plastic Industries',
+                'printerName' => $printerName,
                 'date' => (string) ($materialIntake->date?->toDateString() ?? '-'),
                 'grnNumber' => (string) ($materialIntake->grn_number ?? '-'),
                 'buyerName' => (string) ($materialIntake->buyer?->buyer_name ?? $materialIntake->buyer_name ?? '-'),

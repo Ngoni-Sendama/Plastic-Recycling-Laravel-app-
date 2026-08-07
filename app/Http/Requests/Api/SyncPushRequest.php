@@ -26,6 +26,8 @@ class SyncPushRequest extends FormRequest
             'changes.palletizing_productions' => ['array'],
             'changes.pellet_sales' => ['array'],
             'changes.cash_remittances' => ['array'],
+            'changes.expenses' => ['array'],
+            'changes.expense_categories' => ['array'],
         ];
     }
 }
