@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\CrushingProductionPdfController;
+use App\Http\Controllers\Web\QzTrayController;
 use App\Http\Controllers\Web\StockCashControlExportController;
 use App\Models\CashRemittance;
 use App\Models\CrushingProduction;
@@ -13,6 +14,10 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/docs', '/docs/index.html');
+Route::middleware('auth')->group(function () {
+    Route::get('/qz-tray/certificate', [QzTrayController::class, 'certificate'])->name('qz-tray.certificate');
+    Route::post('/qz-tray/sign', [QzTrayController::class, 'sign'])->name('qz-tray.sign');
+});
 Route::get('/exports/stock-cash-control.xlsx', StockCashControlExportController::class)
     ->name('exports.stock-cash-control');
 Route::get('/exports/crushing-productions/{crushingProduction}/pdf', CrushingProductionPdfController::class)

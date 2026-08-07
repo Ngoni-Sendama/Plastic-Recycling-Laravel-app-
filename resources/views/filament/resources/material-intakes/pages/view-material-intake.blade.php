@@ -119,8 +119,23 @@
                 }
 
                 try {
-                    qz.security.setCertificatePromise((resolve) => resolve(''));
-                    qz.security.setSignaturePromise((toSign) => (resolve) => resolve(''));
+                    qz.security.setCertificatePromise(() => fetch(@json(route('qz-tray.certificate')), {
+                        credentials: 'same-origin',
+                    }).then((response) => response.text()));
+                    qz.security.setSignaturePromise((toSign) => (resolve, reject) => {
+                        fetch(@json(route('qz-tray.sign')), {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': @json(csrf_token()),
+                            },
+                            body: JSON.stringify({ message: toSign }),
+                        })
+                            .then((response) => response.json())
+                            .then((data) => resolve(data.signature))
+                            .catch(reject);
+                    });
 
                     if (!qz.websocket.isActive()) {
                         await qz.websocket.connect();
