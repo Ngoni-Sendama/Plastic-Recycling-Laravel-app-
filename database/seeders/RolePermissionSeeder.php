@@ -162,7 +162,12 @@ class RolePermissionSeeder extends Seeder
     private function assignRolesToUsers(): void
     {
         foreach ($this->userRoleAssignments() as $username => $roles) {
-            $user = User::where('username', $username)->firstOrFail();
+            $user = User::where('username', $username)->first();
+
+            if (! $user) {
+                continue;
+            }
+
             $user->syncRoles($roles);
         }
     }
@@ -174,12 +179,6 @@ class RolePermissionSeeder extends Seeder
     {
         return [
             'admin' => ['super_admin', 'Admin'],
-            'ChiefReceiver' => ['Admin'],
-            'crusher01' => ['Crusher operator'],
-            'receiver01' => ['Stock receiver'],
-            'supervisor01' => ['Supervisor'],
-            'stock01' => ['Stock controller'],
-            'palletizing01' => ['Palletizing operator'],
         ];
     }
 }

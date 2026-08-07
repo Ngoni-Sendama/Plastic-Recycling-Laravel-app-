@@ -16,12 +16,12 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             MaterialSeeder::class,
-            BuyerSeeder::class,
-            ExpenseCategorySeeder::class,
+            // BuyerSeeder::class,
+            // ExpenseCategorySeeder::class,
             ShieldSeeder::class,
             UserSeeder::class,
             RolePermissionSeeder::class,
-            WorkflowExampleDataSeeder::class,
+            // WorkflowExampleDataSeeder::class,
         ]);
     }
 }

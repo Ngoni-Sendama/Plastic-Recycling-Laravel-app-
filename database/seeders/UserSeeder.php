@@ -39,48 +39,7 @@ class UserSeeder extends Seeder
                 'password' => 'admin123',
                 'role' => 'Admin',
             ],
-            [
-                'name' => 'Mai Badza',
-                'username' => 'ChiefReceiver',
-                'email' => 'josmakopa@gmail.com',
-                'password' => 'maibadza',
-                'role' => 'Admin',
-            ],
-            [
-                'name' => 'Tawanda Moyo',
-                'username' => 'crusher01',
-                'email' => 'crusher01@example.com',
-                'password' => 'password123',
-                'role' => 'Crusher operator',
-            ],
-            [
-                'name' => 'Rudo Ndlovu',
-                'username' => 'receiver01',
-                'email' => 'receiver01@example.com',
-                'password' => 'password123',
-                'role' => 'Stock receiver',
-            ],
-            [
-                'name' => 'Nyasha Dube',
-                'username' => 'supervisor01',
-                'email' => 'supervisor01@example.com',
-                'password' => 'password123',
-                'role' => 'Supervisor',
-            ],
-            [
-                'name' => 'Takudzwa Moyo',
-                'username' => 'stock01',
-                'email' => 'stock01@example.com',
-                'password' => 'password123',
-                'role' => 'Stock controller',
-            ],
-            [
-                'name' => 'Rumbidzai Chirwa',
-                'username' => 'palletizing01',
-                'email' => 'palletizing01@example.com',
-                'password' => 'password123',
-                'role' => 'Palletizing operator',
-            ],
+
         ];
     }
 }
