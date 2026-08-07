@@ -14,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/docs', '/docs/index.html');
+Route::redirect('/qz-tray', '/qz-tray/index.html');
 Route::middleware('auth')->group(function () {
     Route::get('/qz-tray/certificate', [QzTrayController::class, 'certificate'])->name('qz-tray.certificate');
     Route::post('/qz-tray/sign', [QzTrayController::class, 'sign'])->name('qz-tray.sign');
