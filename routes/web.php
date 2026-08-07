@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\CrushingProductionPdfController;
 use App\Http\Controllers\Web\MaterialIntakeQzPrintController;
 use App\Http\Controllers\Web\QzTrayController;
 use App\Http\Controllers\Web\StockCashControlExportController;
+use App\Http\Controllers\Web\ThermalTestPrintController;
 use App\Models\CashRemittance;
 use App\Models\CrushingProduction;
 use App\Models\Dispatch;
@@ -49,6 +50,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/material-intakes/{materialIntake}/qz-print', MaterialIntakeQzPrintController::class)
         ->name('web.material-intakes.qz-print');
+
+    Route::get('/thermal-test-print', ThermalTestPrintController::class)
+        ->name('web.thermal-test-print');
 
     Route::get('/dispatches/{dispatch}/pdf', function (Dispatch $dispatch) {
         $dispatch->load(['material', 'recordedByUser', 'crushingProduction']);
