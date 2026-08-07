@@ -1,37 +1,45 @@
 <x-filament-panels::page>
-    <div class="space-y-6">
-        <x-filament::section>
-            <div class="space-y-3">
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    QZ Tray will search for printers on this computer and let you choose the one you want to save.
-                </p>
+    <form wire:submit="create">
+        <div class="space-y-6">
+            <x-filament::section>
+                <div class="space-y-3">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        QZ Tray will search for printers on this computer and let you choose the one you want to save.
+                    </p>
 
-                <div class="flex items-center gap-3">
-                    <button
-                        type="button"
-                        id="detect-printers"
-                        class="inline-flex items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-500"
-                    >
-                        Detect printers
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <button
+                            type="button"
+                            id="detect-printers"
+                            class="inline-flex items-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-500"
+                        >
+                            Detect printers
+                        </button>
 
-                    <span id="printer-status" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                        <span id="printer-status" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Detected printers</label>
+                        <select
+                            id="printer-select"
+                            class="block w-full rounded-lg border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                        >
+                            <option value="">No printers detected yet</option>
+                        </select>
+                    </div>
                 </div>
+            </x-filament::section>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Detected printers</label>
-                    <select
-                        id="printer-select"
-                        class="block w-full rounded-lg border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
-                    >
-                        <option value="">No printers detected yet</option>
-                    </select>
-                </div>
+            {{ $this->form }}
+
+            <div class="flex justify-end">
+                <x-filament::button type="submit" size="md">
+                    Save Printer
+                </x-filament::button>
             </div>
-        </x-filament::section>
-
-        {{ $this->form }}
-    </div>
+        </div>
+    </form>
 
     <script src="{{ asset('qz-tray/qz-tray.js') }}"></script>
     <script>
