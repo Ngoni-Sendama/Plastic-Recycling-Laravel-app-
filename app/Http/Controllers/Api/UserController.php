@@ -28,6 +28,11 @@ class UserController extends Controller
     {
         $user = User::create($request->validated());
 
+        $roleName = $request->input('spatie_role') ?? $request->input('role');
+        if ($roleName) {
+            $user->syncRoles([$roleName]);
+        }
+
         return new UserResource($user);
     }
 
@@ -46,7 +51,17 @@ class UserController extends Controller
             unset($data['password']);
         }
 
+        $spatieRole = $data['spatie_role'] ?? null;
+        unset($data['spatie_role']);
+
         $user->update($data);
+
+        if ($request->has('spatie_role') || $request->has('role')) {
+            $roleName = $spatieRole ?? $user->role;
+            if ($roleName) {
+                $user->syncRoles([$roleName]);
+            }
+        }
 
         return new UserResource($user);
     }

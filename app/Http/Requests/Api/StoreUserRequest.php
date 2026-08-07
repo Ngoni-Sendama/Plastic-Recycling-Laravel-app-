@@ -22,6 +22,7 @@ class StoreUserRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'max:255'],
             'role' => ['required', 'string', 'in:Admin,Stock controller,Crusher operator,Stock receiver,Palletizing operator,Supervisor'],
+            'spatie_role' => ['nullable', 'string', 'exists:roles,name'],
         ];
     }
 }

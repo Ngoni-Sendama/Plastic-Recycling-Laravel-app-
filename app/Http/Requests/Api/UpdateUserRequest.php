@@ -23,6 +23,7 @@ class UpdateUserRequest extends FormRequest
             'email' => ['sometimes', 'nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
             'password' => ['sometimes', 'nullable', 'string', 'min:8', 'max:255'],
             'role' => ['sometimes', 'string', 'in:Admin,Stock controller,Crusher operator,Stock receiver,Palletizing operator,Supervisor'],
+            'spatie_role' => ['nullable', 'string', 'exists:roles,name'],
         ];
     }
 }

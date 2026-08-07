@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\PalletizingProductionController;
 use App\Http\Controllers\Api\PalletizingReceiptController;
 use App\Http\Controllers\Api\PelletSaleController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{user}', [UserController::class, 'show'])->middleware('api.permission:View:User');
     Route::patch('/users/{user}', [UserController::class, 'update'])->middleware('api.permission:Update:User');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->middleware('api.permission:Delete:User');
+
+    Route::get('/roles', [RoleController::class, 'index'])->middleware('api.permission:ViewAny:Role');
+    Route::get('/roles/{role}', [RoleController::class, 'show'])->middleware('api.permission:View:Role');
+    Route::get('/permissions', [RoleController::class, 'permissions'])->middleware('api.permission:ViewAny:Role');
 
     Route::get('/materials', [MaterialController::class, 'index'])->middleware('api.permission:ViewAny:Material');
     Route::get('/materials/trashed', [MaterialController::class, 'trashed'])->middleware('api.permission:ViewAny:Material');
