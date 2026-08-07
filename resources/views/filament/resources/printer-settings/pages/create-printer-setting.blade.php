@@ -19,15 +19,14 @@
                         <span id="printer-status" class="text-sm text-gray-500 dark:text-gray-400"></span>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Detected printers</label>
-                        <select
+                    <x-filament::input.wrapper>
+                        <x-filament::input.select
                             id="printer-select"
-                            class="block w-full rounded-lg border-gray-300 bg-white text-sm text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                            wire:model="data.printer_name"
                         >
                             <option value="">No printers detected yet</option>
-                        </select>
-                    </div>
+                        </x-filament::input.select>
+                    </x-filament::input.wrapper>
                 </div>
             </x-filament::section>
 
