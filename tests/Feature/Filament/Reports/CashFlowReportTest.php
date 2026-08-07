@@ -38,5 +38,8 @@ it('builds a cash flow report from existing records', function (): void {
     expect($report['totals']['cash_in'])->toBe(1500.0)
         ->and($report['totals']['cash_out'])->toBe(500.0)
         ->and($report['totals']['available_cash_balance'])->toBe(1000.0)
-        ->and($report['entries'])->toHaveCount(3);
+        ->and($report['entries'])->toHaveCount(3)
+        ->and($report['entries'][0]['source_url'])->toContain('/pellet-sales/')
+        ->and($report['entries'][1]['source_url'])->toContain('/cash-remittances/')
+        ->and($report['entries'][2]['source_url'])->toContain('/expenses/');
 });

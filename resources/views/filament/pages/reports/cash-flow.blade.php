@@ -87,9 +87,16 @@
                                 </td>
                                 <td class="px-3 py-2 font-medium text-gray-950 dark:text-white">{{ $row['reference'] }}</td>
                                 <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
-                                    <div>{{ $row['description'] }}</div>
+                                    <div class="font-medium">{{ $row['description'] }}</div>
                                     @if ($row['payment_method'])
                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $row['payment_method'] }}</div>
+                                    @endif
+                                    @if (! empty($row['source_url']))
+                                        <div class="mt-1">
+                                            <a href="{{ $row['source_url'] }}" class="text-xs font-medium text-primary-600 hover:underline dark:text-primary-400">
+                                                Open source record
+                                            </a>
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="px-3 py-2 text-right font-semibold text-success-700 dark:text-success-300">
