@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/docs', '/docs/index.html');
 Route::redirect('/qz-tray', '/qz-tray/index.html');
+Route::get('/qz-tray/certificate', [QzTrayController::class, 'certificate'])->name('qz-tray.certificate');
 Route::middleware('auth')->group(function () {
-    Route::get('/qz-tray/certificate', [QzTrayController::class, 'certificate'])->name('qz-tray.certificate');
     Route::post('/qz-tray/sign', [QzTrayController::class, 'sign'])->name('qz-tray.sign');
 });
 Route::get('/exports/stock-cash-control.xlsx', StockCashControlExportController::class)

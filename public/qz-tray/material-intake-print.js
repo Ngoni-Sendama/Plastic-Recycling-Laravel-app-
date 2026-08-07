@@ -1,110 +1,360 @@
 (() => {
-    const payload = JSON.parse(document.getElementById('material-intake-payload').textContent);
+const payloadElement = document.getElementById('material-intake-payload');
 
-    const ESC = '\x1B';
-    const LF = '\x0A';
-    const PAPER_WIDTH = 384;
+if (!payloadElement) {
+    console.error('material-intake-payload element not found');
+    return;
+}
 
-    const prepareLogo = async () => {
-        try {
-            const res = await fetch('/qz-tray/icon.png', { cache: 'no-store' });
-            if (!res.ok) return null;
+const payload = JSON.parse(payloadElement.textContent);
 
-            const blob = await res.blob();
-            const bitmap = await createImageBitmap(blob);
+const ESC = '\x1B';
+const LF = '\x0A';
 
-            const maxW = 220;
-            const scale = Math.min(maxW / bitmap.width, 1);
-            const w = Math.round(bitmap.width * scale);
-            const h = Math.round(bitmap.height * scale);
+const logoUrl = '/qz-tray/icon.png';
 
-            const c = document.createElement('canvas');
-            c.width = PAPER_WIDTH;
-            c.height = h;
-            const ctx = c.getContext('2d');
+/*
+ * Most 58mm thermal printers have a printable width around 384 dots
+ * at 203 DPI.
+ *
+ * Keep the actual logo a little smaller so it has margins.
+ */
+const PAPER_WIDTH = 384;
+const LOGO_MAX_WIDTH = 100;
 
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, PAPER_WIDTH, h);
-            ctx.drawImage(bitmap, Math.floor((PAPER_WIDTH - w) / 2), 0, w, h);
+/**
+ * Load logo, resize it, center it on a 384px canvas,
+ * convert to PNG Base64.
+ */
+const prepareLogo = async (url) => {
+    const response = await fetch(url, {
+        cache: 'no-store'
+    });
 
-            const img = ctx.getImageData(0, 0, PAPER_WIDTH, h);
-            const px = img.data;
-            const bytes = [];
+    if (!response.ok) {
+        throw new Error(
+            `Unable to load logo. HTTP ${response.status}`
+        );
+    }
 
-            for (let x = 0; x < PAPER_WIDTH; x++) {
-                for (let y = 0; y < h; y += 8) {
-                    let b = 0;
-                    for (let bit = 0; bit < 8; bit++) {
-                        const py = y + bit;
-                        if (py < h) {
-                            const i = (py * PAPER_WIDTH + x) * 4;
-                            const gray = px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114;
-                            if (gray < 180) b |= (1 << (7 - bit));
-                        }
-                    }
-                    bytes.push(b);
-                }
+    const blob = await response.blob();
+    const bitmap = await createImageBitmap(blob);
+
+    /*
+     * Calculate resized dimensions while preserving aspect ratio.
+     */
+    const scale = Math.min(
+        LOGO_MAX_WIDTH / bitmap.width,
+        1
+    );
+
+    const resizedWidth = Math.round(bitmap.width * scale);
+    const resizedHeight = Math.round(bitmap.height * scale);
+
+    /*
+     * Canvas is full printer width.
+     * This ensures the image itself is centered.
+     */
+    const canvas = document.createElement('canvas');
+
+    canvas.width = PAPER_WIDTH;
+    canvas.height = resizedHeight + 10;
+
+    const ctx = canvas.getContext('2d');
+
+    /*
+     * Thermal printer background should be white.
+     */
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    /*
+     * Center resized logo.
+     */
+    const x = Math.round(
+        (PAPER_WIDTH - resizedWidth) / 2
+    );
+
+    ctx.drawImage(
+        bitmap,
+        x,
+        5,
+        resizedWidth,
+        resizedHeight
+    );
+
+    /*
+     * Convert to grayscale / high contrast.
+     * This normally gives thermal printers a cleaner logo.
+     */
+    const imageData = ctx.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    const pixels = imageData.data;
+
+    for (let i = 0; i < pixels.length; i += 4) {
+        const r = pixels[i];
+        const g = pixels[i + 1];
+        const b = pixels[i + 2];
+
+        /*
+         * Luminance.
+         */
+        const gray =
+            (r * 0.299) +
+            (g * 0.587) +
+            (b * 0.114);
+
+        /*
+         * Simple threshold for black/white printing.
+         *
+         * Increase 180 if your logo prints too light.
+         * Decrease it if it prints too dark.
+         */
+        const value = gray < 180 ? 0 : 255;
+
+        pixels[i] = value;
+        pixels[i + 1] = value;
+        pixels[i + 2] = value;
+        pixels[i + 3] = 255;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    /*
+     * QZ accepts the Base64 portion.
+     */
+    return canvas
+        .toDataURL('image/png')
+        .split(',')[1];
+};
+
+const connectAndPrint = async () => {
+    try {
+        /*
+         * Connect QZ Tray
+         */
+        if (!qz.websocket.isActive()) {
+            await qz.websocket.connect();
+        }
+
+        /*
+         * Find your printer
+         */
+        const printer = await qz.printers.find(
+            'POS58 Printer'
+        );
+
+        console.log('Printer found:', printer);
+
+        /*
+         * Raw ESC/POS configuration.
+         */
+        const config = qz.configs.create(
+            printer,
+            {
+                encoding: 'UTF-8'
             }
+        );
 
-            const cmd = new Uint8Array(8 + bytes.length);
-            cmd[0] = 0x1D;
-            cmd[1] = 0x76;
-            cmd[2] = 0x30;
-            cmd[3] = 0x00;
-            cmd[4] = PAPER_WIDTH % 256;
-            cmd[5] = 0;
-            cmd[6] = h % 256;
-            cmd[7] = Math.floor(h / 256);
-            cmd.set(bytes, 8);
+        /*
+         * Resize/prepare logo before printing.
+         */
+        const logoBase64 = await prepareLogo(
+            logoUrl
+        );
 
-            return cmd;
-        } catch {
-            return null;
-        }
-    };
+        /*
+         * IMPORTANT:
+         *
+         * Do NOT create:
+         *
+         * const receiptData = [...]
+         * data = [logo, receiptData]
+         *
+         * because receiptData becomes a nested array.
+         *
+         * Instead every raw ESC/POS command/text is
+         * directly inside this QZ data array.
+         */
+        const data = [
 
-    const connectAndPrint = async () => {
-        try {
-            if (!qz.websocket.isActive()) await qz.websocket.connect();
+            /*
+             * Initialize printer
+             */
+            ESC + '\x40',
 
-            const printer = await qz.printers.find('POS58 Printer');
-            const config = qz.configs.create(printer);
-            const logo = await prepareLogo();
+            /*
+             * Center image
+             */
+            ESC + '\x61' + '\x31',
 
-            const data = [
-                ESC + '\x40',
-                ...(logo ? [logo] : []),
+            /*
+             * Logo
+             */
+            {
+                type: 'raw',
+                format: 'image',
+                flavor: 'base64',
+                data: logoBase64,
+                options: {
+                    language: 'ESCPOS',
+                    dotDensity: 'single',
+                    quantization: 'black'
+                }
+            },
+
+            /*
+             * Space after logo
+             */
+            LF,
+
+            /*
+             * Center receipt heading
+             */
+            ESC + '\x61' + '\x31',
+
+            /*
+             * Bold ON
+             */
+            ESC + '\x45' + '\x01',
+
+            String(payload.company ?? '') + LF,
+
+            /*
+             * Bold OFF
+             */
+            ESC + '\x45' + '\x00',
+
+            String(payload.title ?? '') + LF,
+
+            '--------------------------------' + LF,
+
+            /*
+             * Left alignment
+             */
+            ESC + '\x61' + '\x30',
+
+            'Date: ' +
+                String(payload.date ?? '') +
                 LF,
-                ESC + '\x61' + '\x31',
-                ESC + '\x45' + '\x0D',
-                payload.company + LF,
-                ESC + '\x45' + '\x0A',
-                payload.title + LF,
-                '--------------------------------' + LF,
-                ESC + '\x61' + '\x30',
-                'Date: ' + payload.date + LF,
-                'GRN No.: ' + payload.grnNumber + LF,
-                'Buyer: ' + payload.buyerName + LF,
-                'Material: ' + payload.material + LF,
-                'Gross Wt: ' + payload.grossWeight + ' kg' + LF,
-                'Tare Wt: ' + payload.tareWeight + ' kg' + LF,
-                'Net Wt: ' + payload.netWeight + ' kg' + LF,
-                'Unit Price: $' + payload.unitPrice + LF,
-                'Total Value: $' + payload.totalValue + LF,
-                '--------------------------------' + LF,
-                ESC + '\x61' + '\x31',
-                'Thank you' + LF,
-                LF + LF + LF,
-                ESC + '\x69',
-            ];
 
-            await qz.print(config, data);
-            window.close();
-        } catch (error) {
-            console.error(error);
-            document.body.innerHTML = '<p>Unable to print. Keep QZ Tray open and try again.</p>';
-        }
-    };
+            'GRN No.: ' +
+                String(payload.grnNumber ?? '') +
+                LF,
 
-    window.addEventListener('load', connectAndPrint);
+            'Buyer: ' +
+                String(payload.buyerName ?? '') +
+                LF,
+
+            'Material: ' +
+                String(payload.material ?? '') +
+                LF,
+
+            'Gross Wt: ' +
+                String(payload.grossWeight ?? '') +
+                ' kg' +
+                LF,
+
+            'Tare Wt: ' +
+                String(payload.tareWeight ?? '') +
+                ' kg' +
+                LF,
+
+            'Net Wt: ' +
+                String(payload.netWeight ?? '') +
+                ' kg' +
+                LF,
+
+            'Unit Price: $' +
+                String(payload.unitPrice ?? '') +
+                LF,
+
+            'Total Value: $' +
+                String(payload.totalValue ?? '') +
+                LF,
+
+            '--------------------------------' +
+                LF,
+
+            /*
+             * Footer
+             */
+            ESC + '\x61' + '\x31',
+
+            'Thank you' + LF,
+
+            /*
+             * Feed paper
+             */
+            LF,
+            LF,
+            LF,
+
+            /*
+             * Cut paper.
+             *
+             * Some cheap POS58 models don't support
+             * the cutter. If yours doesn't, remove this.
+             */
+            ESC + '\x69'
+        ];
+
+        console.log('Sending print job...');
+
+        await qz.print(config, data);
+
+        console.log('Print successful');
+
+        window.close();
+
+    } catch (error) {
+        console.error(
+            'Print error:',
+            error
+        );
+
+        document.body.innerHTML = `
+            <div style="
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                text-align: center;
+            ">
+                <h3>Unable to print</h3>
+
+                <p>
+                    Keep QZ Tray open and try again.
+                </p>
+
+                <pre style="
+                    white-space: pre-wrap;
+                    text-align: left;
+                    background: #f5f5f5;
+                    padding: 10px;
+                ">${
+                    String(
+                        error?.message ??
+                        error
+                    )
+                }</pre>
+            </div>
+        `;
+    }
+};
+
+window.addEventListener(
+    'load',
+    connectAndPrint
+);
+
+
 })();
