@@ -3,15 +3,13 @@
 
     <x-filament-actions::modals />
 
-    @php
-        $printPayloadJson = json_encode($printPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    @endphp
+    @push('scripts')
+        <script src="{{ asset('qz-tray/qz-tray.js') }}"></script>
+        <script>
+            (() => {
+                const payload = @json($printPayload);
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qz-tray/2.2.4/qz-tray.js" integrity="sha512-6g4VpCzOq1hYd1K3xq+2Zp2A0gT7vA6mX8B9yYhQK2i4R5vQ1B7+Qj7oG8xg1JdBv5Q5pDq1K1hB5VxP2Dg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        (() => {
-            const payload = @json($printPayload);
-            const printHtml = () => `<!DOCTYPE html>
+                const printHtml = () => `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -113,41 +111,42 @@
 </body>
 </html>`;
 
-            const handlePrint = async () => {
-                if (typeof qz === 'undefined') {
-                    return;
-                }
-
-                try {
-                    if (!qz.websocket.isActive()) {
-                        await qz.websocket.connect();
+                const handlePrint = async () => {
+                    if (typeof qz === 'undefined') {
+                        return;
                     }
 
-                    const preferredPrinter = await qz.printers.find("POS58 Printer");
+                    try {
+                        if (!qz.websocket.isActive()) {
+                            await qz.websocket.connect();
+                        }
 
-                    if (!preferredPrinter) {
-                        throw new Error('No printer found in QZ Tray.');
+                        const preferredPrinter = await qz.printers.find('POS58 Printer');
+
+                        if (!preferredPrinter) {
+                            throw new Error('No printer found in QZ Tray.');
+                        }
+
+                        const config = qz.configs.create(preferredPrinter);
+
+                        const data = [
+                            {
+                                type: 'pixel',
+                                format: 'html',
+                                flavor: 'plain',
+                                data: printHtml(),
+                            },
+                        ];
+
+                        await qz.print(config, data);
+                    } catch (error) {
+                        console.error('QZ print error', error);
+                        window.alert('Unable to print through QZ Tray. Please confirm QZ Tray is running and the printer is connected.');
                     }
+                };
 
-                    const config = qz.configs.create(preferredPrinter);
-
-                    const data = [
-                        {
-                            type: 'pixel',
-                            format: 'html',
-                            flavor: 'plain',
-                            data: printHtml(),
-                        },
-                    ];
-
-                    await qz.print(config, data);
-                } catch (error) {
-                    console.error('QZ print error', error);
-                    window.alert('Unable to print through QZ Tray. Please confirm QZ Tray is running and the printer is connected.');
-                }
-            };
-
-            window.addEventListener('material-intake-qz-print', handlePrint);
-        })();
-    </script>
+                window.addEventListener('material-intake-qz-print', handlePrint);
+            })();
+        </script>
+    @endpush
 </x-filament-panels::page>
