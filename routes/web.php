@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\CrushingProductionPdfController;
+use App\Http\Controllers\Web\MaterialIntakeQzPrintController;
 use App\Http\Controllers\Web\QzTrayController;
 use App\Http\Controllers\Web\StockCashControlExportController;
 use App\Models\CashRemittance;
@@ -45,6 +46,9 @@ Route::middleware('auth')->group(function () {
 
         return $pdf->download("material-intake-{$materialIntake->grn_number}.pdf");
     })->name('web.material-intakes.pdf');
+
+    Route::get('/material-intakes/{materialIntake}/qz-print', MaterialIntakeQzPrintController::class)
+        ->name('web.material-intakes.qz-print');
 
     Route::get('/dispatches/{dispatch}/pdf', function (Dispatch $dispatch) {
         $dispatch->load(['material', 'recordedByUser', 'crushingProduction']);
