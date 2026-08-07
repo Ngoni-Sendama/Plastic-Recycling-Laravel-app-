@@ -119,43 +119,17 @@
                 }
 
                 try {
-                    qz.security.setCertificatePromise(() => fetch(@json(route('qz-tray.certificate')), {
-                        credentials: 'same-origin',
-                    }).then((response) => response.text()));
-                    qz.security.setSignaturePromise((toSign) => (resolve, reject) => {
-                        fetch(@json(route('qz-tray.sign')), {
-                            method: 'POST',
-                            credentials: 'same-origin',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': @json(csrf_token()),
-                            },
-                            body: JSON.stringify({ message: toSign }),
-                        })
-                            .then((response) => response.json())
-                            .then((data) => resolve(data.signature))
-                            .catch(reject);
-                    });
-
                     if (!qz.websocket.isActive()) {
                         await qz.websocket.connect();
                     }
 
-                    const printers = await qz.printers.find();
-                    const preferredPrinter = printers.find((name) => /pos58/i.test(name)) || printers[0];
+                    const preferredPrinter = await qz.printers.find("POS58 Printer");
 
                     if (!preferredPrinter) {
                         throw new Error('No printer found in QZ Tray.');
                     }
 
-                    const config = qz.configs.create(preferredPrinter, {
-                        scaleContent: true,
-                        copies: 1,
-                        size: {
-                            width: 2.28,
-                            height: 11,
-                        },
-                    });
+                    const config = qz.configs.create(preferredPrinter);
 
                     const data = [
                         {
