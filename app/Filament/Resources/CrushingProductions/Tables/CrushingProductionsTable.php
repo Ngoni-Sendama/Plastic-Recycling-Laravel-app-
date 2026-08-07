@@ -53,8 +53,8 @@ class CrushingProductionsTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('loss_percentage')
-                    ->label('Loss ratio')
-                    ->numeric()
+                    ->label('Loss %')
+                    ->formatStateUsing(fn ($state): string => number_format(((float) $state) * 100, 2).'%')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('recordedByUser.name')

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>PL-04 Cash Remittance Voucher - {{ $remittance->voucher_number }}</title>
+    <title>PL-01 Goods Received Note - Crushed Chips - {{ $receipt->grn_number }}</title>
     <style>
         @page { size: A4 portrait; margin: 16mm 14mm; }
         * { box-sizing: border-box; }
@@ -31,53 +31,47 @@
 <body>
     <div class="header">
         <div class="company">HIGHGLEN PLASTIC INDUSTRIES</div>
-        <div class="form-title">Cash Remittance Voucher</div>
-        <div class="form-subtitle">Form PL-04 - Palletizing Office to Crushing Office</div>
+        <div class="form-title">Goods Received Note - Crushed Chips</div>
+        <div class="form-subtitle">Form PL-01 - Palletizing Office</div>
     </div>
 
     <table class="meta-grid">
         <tr>
-            <td class="meta-label">Voucher No.</td>
-            <td class="meta-value">{{ $remittance->voucher_number ?? '-' }}</td>
+            <td class="meta-label">GRN No.</td>
+            <td class="meta-value">{{ $receipt->grn_number ?? '-' }}</td>
             <td class="meta-label">Date</td>
-            <td class="meta-value">{{ $remittance->date ? \Carbon\Carbon::parse($remittance->date)->timezone('Africa/Harare')->format('d M Y') : '-' }}</td>
+            <td class="meta-value">{{ $receipt->date ? \Carbon\Carbon::parse($receipt->date)->timezone('Africa/Harare')->format('d M Y') : '-' }}</td>
         </tr>
         <tr>
-            <td class="meta-label">Recorded by</td>
-            <td class="meta-value">{{ $remittance->recordedByUser?->name ?? '-' }}</td>
-            <td class="meta-label">Period covered</td>
-            <td class="meta-value">{{ $remittance->period_covered ?? '-' }}</td>
+            <td class="meta-label">Dispatch note No. (reference)</td>
+            <td class="meta-value">{{ $receipt->dispatch?->dispatch_note_number ?? $receipt->dispatch_reference ?? '-' }}</td>
+            <td class="meta-label">Material type</td>
+            <td class="meta-value">{{ $receipt->material?->code ? $receipt->material->code.' - '.$receipt->material->name : ($receipt->material?->name ?? '-') }}</td>
         </tr>
     </table>
 
     <div class="section">
-        <div class="section-title">Remittance Details</div>
+        <div class="section-title">Receipt Details</div>
         <table class="detail-grid">
             <tr>
-                <td class="field-label">Total chips delivered in period (kg)</td>
-                <td class="field-value">{{ number_format((float) ($remittance->chips_delivered_kg ?? 0), 3) }}</td>
-                <td class="field-label">Stock recovery price ($/kg)</td>
-                <td class="field-value">${{ number_format((float) ($remittance->recovery_price_per_kg ?? 0), 2) }}</td>
+                <td class="field-label">Weight received (kg)</td>
+                <td class="field-value">{{ number_format((float) ($receipt->weight_received_kg ?? 0), 3) }}</td>
+                <td class="field-label">Rate payable ($/kg)</td>
+                <td class="field-value">${{ number_format((float) ($receipt->rate_per_kg ?? 0), 2) }}</td>
             </tr>
             <tr>
-                <td class="field-label">Maximum remittance due ($) = kg delivered × recovery price</td>
-                <td class="field-value" colspan="3">${{ number_format((float) ($remittance->max_remittance_due ?? 0), 2) }}</td>
+                <td class="field-label">Amount payable to Crushing Office ($)</td>
+                <td class="field-value" colspan="3">${{ number_format((float) ($receipt->amount_payable ?? 0), 2) }}</td>
             </tr>
             <tr>
-                <td class="field-label">Actual cash remitted to Crushing Office ($)</td>
-                <td class="field-value">${{ number_format((float) ($remittance->cash_remitted ?? 0), 2) }}</td>
-                <td class="field-label">Balance retained by Palletizing Office ($)</td>
-                <td class="field-value">${{ number_format((float) ($remittance->balance_retained ?? 0), 2) }}</td>
-            </tr>
-            <tr>
-                <td class="field-label">Remarks</td>
-                <td class="field-value" colspan="3">{{ $remittance->remarks ?? '-' }}</td>
+                <td class="field-label">Remarks (weight variance vs dispatch note, quality)</td>
+                <td class="field-value" colspan="3">{{ $receipt->remarks ?? '-' }}</td>
             </tr>
         </table>
     </div>
 
     <div class="note">
-        Note: Remittance is capped at the value of chips delivered, at the pre-agreed recovery price (e.g. $0.50/kg). Any sales proceeds above that cap are retained by the Palletizing Office as its margin. Posted to the Cash Remittance Log.
+        Note: Amount payable = weight received (kg) × rate ($/kg, e.g. $0.10/kg). Posted to the Palletizing Receipt Log; liability accrues to the Crushing Office until settled by cash remittance.
     </div>
 
     <div class="section">
@@ -86,11 +80,11 @@
             <tr>
                 <td>
                     <span class="line"></span>
-                    <div class="signature-label">Remitted by (supervisor, palletizing office)</div>
+                    <div class="signature-label">Stock receiver (palletizing office)</div>
                 </td>
                 <td>
                     <span class="line"></span>
-                    <div class="signature-label">Received by (crushing office representative)</div>
+                    <div class="signature-label">Crushing Office representative</div>
                 </td>
             </tr>
         </table>

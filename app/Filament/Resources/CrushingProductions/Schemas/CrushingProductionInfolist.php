@@ -26,7 +26,9 @@ class CrushingProductionInfolist
                         TextEntry::make('input_weight_kg')->numeric(),
                         TextEntry::make('output_chips_kg')->numeric(),
                         TextEntry::make('loss_kg')->numeric(),
-                        TextEntry::make('loss_percentage')->numeric(),
+                        TextEntry::make('loss_percentage')
+                            ->label('Loss percentage')
+                            ->formatStateUsing(fn ($state): string => number_format(((float) $state) * 100, 2).'%'),
                     ])
                     ->columns(4),
                 Section::make('Audit')
