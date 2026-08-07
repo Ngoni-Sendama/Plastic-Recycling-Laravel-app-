@@ -17,7 +17,6 @@ class BuyerForm
                     ->maxLength(255),
                 TextInput::make('contact_number')
                     ->label('Contact number')
-                    ->tel()
                     ->maxLength(50),
             ]);
     }
