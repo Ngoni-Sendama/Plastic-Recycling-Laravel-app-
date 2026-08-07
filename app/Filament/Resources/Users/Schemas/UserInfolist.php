@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -31,7 +32,7 @@ class UserInfolist
                 Section::make('Preferences')
                     ->description('Optional profile and display settings.')
                     ->schema([
-                        TextEntry::make('avatar_url')->placeholder('-'),
+                        ImageEntry::make('avatar_url'),
                         TextEntry::make('locale')->placeholder('-'),
                         TextEntry::make('theme_color')->placeholder('-'),
                         TextEntry::make('custom_fields')->placeholder('-'),
