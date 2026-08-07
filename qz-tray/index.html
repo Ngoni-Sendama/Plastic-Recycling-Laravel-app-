@@ -1,0 +1,17 @@
+<html>
+    <script src="qz-tray.js"></script>
+    <script>
+        qz.websocket.connect().then(() => {
+                return qz.printers.find("POS58 Printer");
+            }).then((found) => {
+                var config = qz.configs.create(found);
+                var data = [{
+                        type: "pixel",
+                        format: "html",
+                        flavor: "plain", // or 'plain' if the data is raw HTML
+                        data: "<h1>Hello world</h1><p>This is a test print.</p>",
+                    }];
+               qz.print(config,data);
+            });
+    </script>
+</html>

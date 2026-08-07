@@ -141,17 +141,26 @@
                         await qz.websocket.connect();
                     }
 
-                    const printer = await qz.printers.getDefault();
-                    const config = qz.configs.create(printer, {
+                    const printers = await qz.printers.find();
+                    const preferredPrinter = printers.find((name) => /pos58/i.test(name)) || printers[0];
+
+                    if (!preferredPrinter) {
+                        throw new Error('No printer found in QZ Tray.');
+                    }
+
+                    const config = qz.configs.create(preferredPrinter, {
                         scaleContent: true,
                         copies: 1,
-                        rasterize: false,
+                        size: {
+                            width: 2.28,
+                            height: 11,
+                        },
                     });
 
                     const data = [
                         {
-                            type: 'html',
-                            format: 'plain',
+                            type: 'pixel',
+                            format: 'html',
                             flavor: 'plain',
                             data: printHtml(),
                         },
