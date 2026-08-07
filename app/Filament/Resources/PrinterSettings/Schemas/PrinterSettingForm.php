@@ -21,7 +21,6 @@ class PrinterSettingForm
                             ->label('Printer name')
                             ->helperText('Auto-filled from QZ Tray, or edit if you need to switch devices.')
                             ->required()
-                            ->readOnly()
                             ->maxLength(255),
                     ]),
             ]);

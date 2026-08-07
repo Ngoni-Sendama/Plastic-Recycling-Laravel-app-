@@ -41,28 +41,14 @@
             const select = document.getElementById('printer-select');
 
             const setPrinterName = (name) => {
-                const input = document.querySelector([
-                    'input[name="data.printer_name"]',
-                    'input[name="printer_name"]',
-                    'input[id="data.printer_name"]',
-                    'input[id="printer_name"]',
-                ].join(', '));
-
-                if (!input || !name) {
-                    console.warn('[printer-settings] printer input not found or name empty', { found: Boolean(input), name });
-                    status.textContent = 'Printer field not found on the form.';
+                if (!name) {
+                    status.textContent = 'No printer selected.';
                     return;
                 }
 
-                console.log('[printer-settings] writing printer name to form field', {
-                    selector: input.name || input.id || input.type,
-                    value: name,
-                });
-                input.value = name;
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
+                @this.set('data.printer_name', name);
                 status.textContent = `Selected: ${name}`;
-                console.log('[printer-settings] selected printer', name);
+                console.log('[printer-settings] set printer via Livewire', name);
             };
 
             const renderPrinters = (printers) => {
